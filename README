@@ -12,3 +12,14 @@ bin - for Makefiles, scripts and other executables which are specific for
 this module. 
 
 module - for module output. 
+
+Please copy this template into your chosen location and do
+git init
+git add * 
+git commit *
+
+This will set up a git repo for your module project
+
+Now obtain the USFM files, and unzip them into the usfm directory. More
+instructions there
+
