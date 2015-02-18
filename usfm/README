@@ -1,0 +1,15 @@
+unzip your USFM files here, do 
+
+git add *SFM
+git commit *SFM
+
+If you have already set up a remote repo via gitosis you can now also do
+
+git remote add crosswire gitosis@crosswire.org:myproject.git
+git push crosswire master:refs/heads/master
+
+After this obtain via the scripts in ../bin the necessary scripts from
+remote servers and get going. 
+
+Please commit from regularly, particularly if you collaborate.
+

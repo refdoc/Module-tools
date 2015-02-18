@@ -1,0 +1,4 @@
+getscripts.sh will obtain usfm2osis.py, xreffix.pl and other scripts from
+elsewhere. 
+
+We will also put template Makefiles into this directory

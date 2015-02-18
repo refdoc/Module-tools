@@ -1,0 +1,14 @@
+This is a template for a usfm -> module conversion repo.
+
+The directories are 
+
+usfm - initial import of usfm files into here, please. All usfm2osis work
+should happen in this directory. 
+
+osis - Once a working and clean osis file has been produced it can be stored
+in here. 
+
+bin - for Makefiles, scripts and other executables which are specific for
+this module. 
+
+module - for module output. 
