@@ -1,0 +1,13 @@
+TODO for usfm2osis.py:
+Allow specified elements to be commented out (Intro title, chapter name, <p type="x-noindent">)
+Allow certain heading types to be mapped? (Intro Gen)
+Move inter-verse <p> and </p> forward or backward to be inside adjacent verse tags.
+Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
+Check and report <l> and <item> elements which straddle verses (these will never display right)
+
+TODO for xulsword:
+DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
+DONE: With <l level="x">, if x==1 this should indent 1 rather than 0.
+
+TODO for osis2mod.cpp:
+Pass <p> type as HTML class
