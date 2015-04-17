@@ -1273,25 +1273,46 @@ def convertToOsis(sFile):
         """
 
         # assorted re-orderings
-        osis = re.sub('(\uFDD3<chapter eID=.+?\n)(<verse eID=.+?>\uFDD2)\n?', r'\2'+'\n'+r'\1', osis)
+
+        osis = re.sub('(\uFDD3<chapter eID=.+?\n)(<verse eID=.+?>\uFDD2)\n?', r'\2'+'\n'+r'\1', osis) # can this ever occur?
+        
+        # </div-last>...</chapter> --> ...</chapter></div-last>
         osis = re.sub('([\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9]</div>)([^\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9]*<chapter eID.+?>)', r'\2\1', osis)
-        osis = re.sub('(\uFDD3</p>\n?\uFDD3<p>)\n?(<verse eID=.+?>\uFDD2)\n?', r'\2'+'\n'+r'\1'+'\n', osis)
-        osis = re.sub('\n(<verse eID=.+?>\uFDD2)', r'\1'+'\n', osis)
-        osis = re.sub('\n*(<l.+?>)(<verse eID=.+?>[\uFDD2\n]*<verse osisID=.+?>)', r'\2\1', osis)
+        
+        # delete Unicode non-characters
+        for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
+            osis = osis.replace(c, '')
+
+        # <[pl]></verse> --> </verse><[pl]>
+        osis = re.sub('((<[pl](\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\4\1', osis)
+        
+        # <[pl]><verse> --> <verse><[pl]>
+        osis = re.sub('((<[pl](\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\4\1', osis)
+        
+        # <verse></[pl]> --> </[pl]><verse>
+        osis = re.sub('(<verse osisID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
+        
+        # </verse></[pl]> --> </[pl]></verse>
+        osis = re.sub('(<verse eID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
+        
+        # </l>NOTE --> NOTE</l>
         osis = re.sub('(</l>)(<note .+?</note>)', r'\2\1', osis)
 
         # delete attributes from end tags (since they are invalid)
         osis = re.sub(r'(</[^\s>]+) [^>]*>', r'\1>', osis)
         osis = osis.replace('<lb type="x-p"/>', '<lb/>')
 
-        # delete Unicode non-characters
-        for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
-            osis = osis.replace(c, '')
-
         for endBlock in ['p', 'div', 'note', 'l', 'lg', 'chapter', 'verse', 'head', 'title', 'item', 'list']:
             osis = re.sub('\s+</'+endBlock+'>', '</'+endBlock+r'>\n', osis)
             osis = re.sub('\s+<'+endBlock+'( eID=[^/>]+/>)', '<'+endBlock+r'\1'+'\n', osis)
         osis = re.sub(' +((</[^>]+>)+) *', r'\1 ', osis)
+        
+        # normalize p, lg, l and verse containers for pretty OSIS
+        osis = re.sub('\s*(</?lg>)\s*', r'\1', osis)
+        osis = re.sub('\s*(</(p|l)(?=[\s>])[^>]*>)\s*', r'\1', osis)
+        osis = re.sub('\s*(<(p|l)(?=[\s>])[^>]*>)\s*', '\n'+r'\1', osis)
+        osis = re.sub('\s*(<verse osisID=[^>]*>)\s*', '\n'+r'\1', osis)
+        osis = re.sub('\s*(<verse eID=[^>]*>)\s*', r'\1'+'\n', osis)
 
         # strip extra spaces & newlines
         osis = re.sub('  +', ' ', osis)
