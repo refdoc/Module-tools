@@ -1283,16 +1283,16 @@ def convertToOsis(sFile):
         for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
             osis = osis.replace(c, '')
 
-        # <[pl]></verse> --> </verse><[pl]>
-        osis = re.sub('((<[pl](\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\4\1', osis)
+        # <start-tags-belonging-to-next-verse></verse> --> </verse><start-tags-belonging-to-next-verse>
+        osis = re.sub('((<div type="[^"]*[Ss]ection">\s*<title>.*?</title>|<[pl](\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\4\1', osis)
         
-        # <[pl]><verse> --> <verse><[pl]>
-        osis = re.sub('((<[pl](\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\4\1', osis)
+        # <start-tags-belonging-to-next-verse><verse> --> <verse><start-tags-belonging-to-next-verse>
+        osis = re.sub('((<div type="[^"]*[Ss]ection">\s*<title>.*?</title>|<[pl](\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\4\1', osis)
         
-        # <verse></[pl]> --> </[pl]><verse>
+        # <verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse><verse>
         osis = re.sub('(<verse osisID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
         
-        # </verse></[pl]> --> </[pl]></verse>
+        # </verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse>
         osis = re.sub('(<verse eID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
         
         # </l>NOTE --> NOTE</l>
@@ -1307,12 +1307,13 @@ def convertToOsis(sFile):
             osis = re.sub('\s+<'+endBlock+'( eID=[^/>]+/>)', '<'+endBlock+r'\1'+'\n', osis)
         osis = re.sub(' +((</[^>]+>)+) *', r'\1 ', osis)
         
-        # normalize p, lg, l and verse containers for pretty OSIS
-        osis = re.sub('\s*(</?lg>)\s*', r'\1', osis)
+        # normalize p, lg, l and other containers for prettier OSIS
+        osis = re.sub('\s*(</?(title|lg)>)\s*', r'\1', osis)
         osis = re.sub('\s*(</(p|l)(?=[\s>])[^>]*>)\s*', r'\1', osis)
         osis = re.sub('\s*(<(p|l)(?=[\s>])[^>]*>)\s*', '\n'+r'\1', osis)
         osis = re.sub('\s*(<verse osisID=[^>]*>)\s*', '\n'+r'\1', osis)
         osis = re.sub('\s*(<verse eID=[^>]*>)\s*', r'\1'+'\n', osis)
+        osis = re.sub('\s*(<chapter[^>]*>)\s*', '\n'+r'\1'+'\n', osis)
 
         # strip extra spaces & newlines
         osis = re.sub('  +', ' ', osis)
