@@ -758,6 +758,9 @@ def convertToOsis(sFile):
         osis = osis.replace('\n</l>', '</l>\n')
         osis = re.sub('(<l [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
 
+        # x-to-next-level allows line folding like Paratext
+        osis = re.sub('(<l level="(\d)")(>.*?</l>(\s*<l level="(\d)">)?)', lambda m: m.group(1)+' subType="x-to-next-level"'+m.group(3) if m.group(4) and int(m.group(2))+1 == int(m.group(5)) else m.group(1)+m.group(3), osis, flags=re.DOTALL)
+
         # \b
         osis = re.sub('(<lg>.+?</lg>)', lambda m: m.group(1).replace('<lb type="x-p"/>', r'</lg><lb type="x-p"/><lg>'), osis, flags=re.DOTALL) # re-handle \b that occurs within <lg>
 

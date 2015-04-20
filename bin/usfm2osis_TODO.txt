@@ -3,7 +3,7 @@ Allow specified elements to be commented out (Intro title, chapter name, <p type
 DONE: Move inter-verse headings to top of subsequent verse.
 DONE: Move inter-verse <p> and </p> forward or backward to be inside adjacent verse tags.
 DONE: Stop removing <lb/> between line groups.
-Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
+DONE: Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
 
 TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
