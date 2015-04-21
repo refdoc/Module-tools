@@ -638,8 +638,14 @@ def convertToOsis(sFile):
             return ctext
         osis = re.sub(r'(<chapter [^<]+sID[^<]+/>.+?<chapter eID[^>]+/>)', replaceChapterNumber, osis, flags=re.DOTALL)
 
-        # \cl_
-        osis = re.sub(r'\\cl\s+(.+)', '\uFDD4<title>'+r'\1</title>', osis)
+        # \cl_ 
+        # If \cl is found just before the first \c it is a generic term to be utilized at the top of every chapter.
+        # Otherwise \cl is a single chapter label.
+        preChapterLabel = re.search(r'\\cl\s+([^\n]*?)((.{0,2}</[^>]+>.{0,2})*<chapter\s)', osis, flags=re.DOTALL)
+        if preChapterLabel is not None:
+            osis = re.sub(r'\\cl\s+([^\n]*?)((.{0,2}</[^>]+>.{0,2})*<chapter\s)', r'\2', osis, flags=re.DOTALL)
+            osis = re.sub(r'(<chapter osisID="[^\.]+\.(\d+)"[^>]*>)', lambda m: m.group(1)+'\uFDD4<title type="x-chapterLabel">'+(re.sub(r'\d+', m.group(2), preChapterLabel.group(1), 1) if re.search(r'\d+', preChapterLabel.group(1)) else preChapterLabel.group(1)+' '+m.group(2))+'</title>', osis)
+        osis = re.sub(r'\\cl\s+(.+)', '\uFDD4<title type="x-chapterLabel">'+r'\1</title>', osis)
 
         # \cd_#   <--This # seems to be an error
         osis = re.sub(r'\\cd\b\s+(.+)', '\uFDD4<title type="x-description">'+r'\1</title>', osis)

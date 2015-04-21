@@ -1,9 +1,13 @@
 TODO for usfm2osis.py:
-Allow specified elements to be commented out (Intro title, chapter name, <p type="x-noindent">, footnote references)
 DONE: Move inter-verse headings to top of subsequent verse.
 DONE: Move inter-verse <p> and </p> forward or backward to be inside adjacent verse tags.
 DONE: Stop removing <lb/> between line groups.
 DONE: Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
+Fix markup of secondary sections
+
+TODO for osis2sword.xlt:
+DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
+Map certain elements to simplify display classes
 
 TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
