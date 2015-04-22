@@ -1293,16 +1293,16 @@ def convertToOsis(sFile):
             osis = osis.replace(c, '')
 
         # <start-tags-belonging-to-next-verse></verse> --> </verse><start-tags-belonging-to-next-verse>
-        osis = re.sub('((<div type="[^"]*[Ss]ection">\s*<title>.*?</title>|<[pl](\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\4\1', osis)
+        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\7\1', osis)
         
         # <start-tags-belonging-to-next-verse><verse> --> <verse><start-tags-belonging-to-next-verse>
-        osis = re.sub('((<div type="[^"]*[Ss]ection">\s*<title>.*?</title>|<[pl](\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\4\1', osis)
+        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\7\1', osis)
         
         # <verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse><verse>
-        osis = re.sub('(<verse osisID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
+        osis = re.sub('(<verse osisID=[^>]*>)((</([pl]|lg)(\s[^>]*)?>|\s)+)', r'\2\1', osis)
         
         # </verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse>
-        osis = re.sub('(<verse eID=[^>]*>)((</[pl](\s[^>]*)?>|\s)+)', r'\2\1', osis)
+        osis = re.sub('(<verse eID=[^>]*>)((</([pl]|lg)(\s[^>]*)?>|\s)+)', r'\2\1', osis)
         
         # </l>NOTE --> NOTE</l>
         osis = re.sub('(</l>)(<note .+?</note>)', r'\2\1', osis)
@@ -1608,7 +1608,8 @@ if __name__ == "__main__":
             osisSegment[k]=v
 
         print('Assembling OSIS document')
-        osisDoc = '<osis xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.'+osisVersion+'.xsd">\n<osisText osisRefWork="Bible" xml:lang="' + language + '" osisIDWork="' + osisWork + '">\n<header>\n<work osisWork="' + osisWork + '"/>\n</header>\n'
+        conversionInfo = '<!-- usfm2osis.py '+scriptVersion+', date='+date+', rev='+rev+', usfmVersion='+usfmVersion+', osisVersion='+osisVersion+' !-->\n'
+        osisDoc = '<osis xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bibletechnologies.net/2003/OSIS/namespace http://www.bibletechnologies.net/osisCore.'+osisVersion+'.xsd">\n<osisText osisRefWork="Bible" xml:lang="' + language + '" osisIDWork="' + osisWork + '">\n<header>\n' + conversionInfo + '<work osisWork="' + osisWork + '"/>\n</header>\n'
 
         unhandledTags = set()
         for doc in usfmDocList:

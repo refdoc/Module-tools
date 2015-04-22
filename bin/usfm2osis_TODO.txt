@@ -3,7 +3,7 @@ DONE: Move inter-verse headings to top of subsequent verse.
 DONE: Move inter-verse <p> and </p> forward or backward to be inside adjacent verse tags.
 DONE: Stop removing <lb/> between line groups.
 DONE: Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
-Fix markup of secondary sections
+DONE: Fix markup of secondary sections
 
 TODO for osis2sword.xlt:
 DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
