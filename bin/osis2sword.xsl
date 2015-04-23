@@ -20,12 +20,21 @@
   <xsl:template match="osis:reference[@type='annotateRef']"/>
   
   <!-- remove introduction elements that shouldn't appear in SWORD introductions !-->
+  <xsl:template match="osis:milestone[@type='x-usfm-toc1']"/>
   <xsl:template match="osis:milestone[@type='x-usfm-toc2']"/>
   <xsl:template match="osis:milestone[@type='x-usfm-toc3']"/>
+  
+  <!-- remove comments !-->
+  <xsl:template match="comment()"/>
 
   <!-- show introduction <head> tags as secondary titles !-->
   <xsl:template match="osis:head">
     <title level="2" type="main" subType="x-introduction"><xsl:apply-templates/></title>
+  </xsl:template>
+  
+  <!-- make parallel passage titles secondary titles !-->
+  <xsl:template match="osis:title[@type='parallel']">
+    <xsl:copy><xsl:attribute name="level">2</xsl:attribute><xsl:apply-templates/></xsl:copy>
   </xsl:template>
 
   <!-- scope title references should not appear as reference links !-->

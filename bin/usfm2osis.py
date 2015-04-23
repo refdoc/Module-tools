@@ -591,7 +591,8 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\d\s+(\\v\s+\S+\s+)?(.+)', lambda m: (m.group(1) if m.group(1) else '') + '\uFDD4<title canonical="true" type="psalm">' + m.group(2) + '</title>', osis)
 
         # \sp_text...
-        osis = re.sub(r'\\sp\s+(.+)', '\uFDD4<speaker>'+r'\1</speaker>', osis)
+        # USFM \sp tags represent printed non-canonical secondary titles, whereas the OSIS <speaker> tag is indended to hold a canonical name associated with <speech> elements.
+        osis = re.sub(r'\\sp\s+(.+)', '\uFDD4<title level="2" subType="x-speaker">'+r'\1</title>', osis)
 
         # \mt#_text...
         osis = re.sub(r'\\mt(\d?)\s+(.+)', lambda m: '\uFDD4<title ' + ('level="'+m.group(1)+'" ' if m.group(1) else '') + 'type="main">' + m.group(2) + '</title>', osis)
@@ -752,14 +753,14 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\qs\b\s(.+?)\\qs\*', r'<l type="selah">\1</l>', osis, flags=re.DOTALL)
 
         # \q#(_text...)
-        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|speaker|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|speaker|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
 
         # \qr_text...
         # \qc_text...
         # \qm#(_text...)
         qType = {'qr':'x-right', 'qc':'x-center', 'qm':'x-embedded" level="1', 'qm1':'x-embedded" level="1', 'qm2':'x-embedded" level="2', 'qm3':'x-embedded" level="3', 'qm4':'x-embedded" level="4', 'qm5':'x-embedded" level="5'}
-        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q\d?|fig)\b|<(l|lb|title|list|speaker|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q\d?|fig)\b|<(l|lb|title|list|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
 
         osis = osis.replace('\n</l>', '</l>\n')
         osis = re.sub('(<l [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
@@ -1293,10 +1294,10 @@ def convertToOsis(sFile):
             osis = osis.replace(c, '')
 
         # <start-tags-belonging-to-next-verse></verse> --> </verse><start-tags-belonging-to-next-verse>
-        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\7\1', osis)
+        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(?!\scanonical="true")(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\7\1', osis)
         
         # <start-tags-belonging-to-next-verse><verse> --> <verse><start-tags-belonging-to-next-verse>
-        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\7\1', osis)
+        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(?!\scanonical="true")(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\7\1', osis)
         
         # <verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse><verse>
         osis = re.sub('(<verse osisID=[^>]*>)((</([pl]|lg)(\s[^>]*)?>|\s)+)', r'\2\1', osis)
