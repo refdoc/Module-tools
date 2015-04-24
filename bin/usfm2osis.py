@@ -819,10 +819,7 @@ def convertToOsis(sFile):
         # \fqa_
         note = re.sub(r'\\fqa\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<rdg type="alternate">\1</rdg>', note)
 
-        # \ft_
-        note = re.sub(r'\\ft\s', '', note)
-
-        # \fr_##SEP##
+        # \fr_
         note = re.sub(r'\\fr\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<reference type="annotateRef">\1</reference>', note)
 
         # \fk_
@@ -837,6 +834,9 @@ def convertToOsis(sFile):
 
         # \fv_
         note = re.sub(r'\\fv\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<hi type="super">\1</hi>', note)
+        
+        # \ft_ handle this lastly, so it may properly end any previous footnote tag
+        note = re.sub(r'\\ft\s', '', note)
 
         # \fq*,\fqa*,\ft*,\fr*,\fk*,\fl*,\fp*,\fv*
         note = re.sub(r'\\f(q|qa|t|r|k|l|p|v)\*', '', note)

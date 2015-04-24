@@ -7,7 +7,8 @@ DONE: Fix markup of secondary sections
 
 TODO for osis2sword.xlt:
 DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
-Map certain elements to simplify display classes
+DONE: Map certain elements to simplify display classes
+Attribute values should be copied exactly (no entity escaping)
 
 TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
