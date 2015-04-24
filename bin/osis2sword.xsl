@@ -41,6 +41,11 @@
   <xsl:template match="osis:title[@type='scope']/osis:reference">
     <xsl:apply-templates/>
   </xsl:template>
+  
+  <!-- remove <reference> tags that lack osisRef attributes !-->
+  <xsl:template match="osis:reference[not(@osisRef)]">
+    <xsl:apply-templates/>
+  </xsl:template>
 
   <!-- usfm2osis.py follows the OSIS manual recommendation for selah as a line element which differs from the USFM recommendation for selah.
   According to USFM 2.35 spec, selah is: "A character style. This text is frequently right aligned, and rendered on the same line as the previous poetic text..." !-->
