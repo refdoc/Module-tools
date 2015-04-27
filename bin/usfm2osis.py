@@ -857,10 +857,10 @@ def convertToOsis(sFile):
         """
 
         # \f_+_...\f*
-        osis = re.sub(r'\\f\s+([^\s\\]+)?\s*(.+?)\s*\\f\*', lambda m: '<note' + ((' n=""') if (m.group(1) == '-') else ('' if (m.group(1) == '+') else (' n="' + m.group(1) + '"'))) + ' placement="foot">' + m.group(2) + '\uFDDF</note>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\f\s+([^\s\\]+)?\s*(.+?)\s*\\f\*', lambda m: '<note' + ((' n=""') if (m.group(1) == '-') else ('' if ((relaxedConformance and not m.group(1)) or m.group(1) == '+') else (' n="' + m.group(1) + '"'))) + ' placement="foot">' + m.group(2) + '\uFDDF</note>', osis, flags=re.DOTALL)
 
         # \fe_+_...\fe*
-        osis = re.sub(r'\\fe\s+([^\s\\]+?)\s*(.+?)\s*\\fe\*', lambda m: '<note' + ((' n=""') if (m.group(1) == '-') else ('' if (m.group(1) == '+') else (' n="' + m.group(1) + '"'))) + ' placement="end">' + m.group(2) + '\uFDDF</note>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\fe\s+([^\s\\]+?)\s*(.+?)\s*\\fe\*', lambda m: '<note' + ((' n=""') if (m.group(1) == '-') else ('' if ((relaxedConformance and not m.group(1)) or m.group(1) == '+') else (' n="' + m.group(1) + '"'))) + ' placement="end">' + m.group(2) + '\uFDDF</note>', osis, flags=re.DOTALL)
 
         osis = re.sub(r'(<note\b[^>]*?>.*?</note>)', lambda m: processNote(m.group(1)), osis, flags=re.DOTALL)
 
