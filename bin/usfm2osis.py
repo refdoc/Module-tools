@@ -1297,7 +1297,7 @@ def convertToOsis(sFile):
         osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(?!\scanonical="true")(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse eID=[^>]*>)', r'\7\1', osis)
         
         # <start-tags-belonging-to-next-verse><verse> --> <verse><start-tags-belonging-to-next-verse>
-        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(?!\scanonical="true")(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\7\1', osis)
+        osis = re.sub('(((<div type="[^"]*[Ss]ection">\s*)?<title(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)(<verse osisID=[^>]*>)', r'\7\1', osis)
         
         # <verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse><verse>
         osis = re.sub('(<verse osisID=[^>]*>)((</([pl]|lg)(\s[^>]*)?>|\s)+)', r'\2\1', osis)

@@ -15,6 +15,9 @@ TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
 DONE: With <l level="x">, if x==1 this should indent 1 rather than 0.
 DONE: <lb/> between line groups should be displayed.
+Add "parallel" to style sheet in addition to x-parallel-passage
+Fix note mouseover hover placement of popup with new HTML.
+check support for osisRef="TVN:Gen.1.1"
 
 TODO for osis2mod.cpp:
 Pass <p> type as HTML class
