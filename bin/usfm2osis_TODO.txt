@@ -18,6 +18,7 @@ DONE: <lb/> between line groups should be displayed.
 Add "parallel" to style sheet in addition to x-parallel-passage
 Fix note mouseover hover placement of popup with new HTML.
 check support for osisRef="TVN:Gen.1.1"
+Copy OSIS filters as TEI filters.
 
 TODO for osis2mod.cpp:
 Pass <p> type as HTML class
