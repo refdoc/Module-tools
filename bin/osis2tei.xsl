@@ -20,7 +20,7 @@
           <xsl:when test="position()=1"/><!-- drop first entry which is always junk -->
           <xsl:otherwise>
             <xsl:element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-              <xsl:attribute name="n"><xsl:value-of select="upper-case(descendant-or-self::osis:seg[@type='keyword'][1])"/></xsl:attribute>
+              <xsl:attribute name="n"><xsl:value-of select="descendant-or-self::osis:seg[@type='keyword'][1]"/></xsl:attribute>
               <xsl:for-each select="current-group()[count(index-of(current-group(),./..))=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
             </xsl:element>
           </xsl:otherwise>

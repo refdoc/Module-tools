@@ -58,8 +58,8 @@ scriptVersion = '0.6'
 # check Python2/3 compatibility
 
 ### Key to non-characters:
-# Used   : \uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6
-# Unused : \uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF
+# Used   : \uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7
+# Unused : \uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF
 # \uFDD0 book
 # \uFDD1 chapter
 # \uFDD2 verse
@@ -83,8 +83,10 @@ scriptVersion = '0.6'
 # \uFDE4 is3
 # \uFDE5 is4
 # \uFDE6 is5
-
+#
 # \uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE sections
+#
+# \uFDE7 line-break
 
 import sys, codecs, re
 from encodings.aliases import aliases
@@ -504,22 +506,20 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\iq(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(iq\d?|fig|q\d?|b)\b|<title\b))', r'<l level="\1" subType="x-introduction">\2</l>', osis, flags=re.DOTALL)
 
         # \ib
-        osis = re.sub(r'\\ib\b\s?', '<lb type="x-p"/>', osis)
+        osis = re.sub(r'\\ib\b\s?', '\uFDE7<lb type="x-p"/>', osis)
         osis = osis.replace('\n</l>', '</l>\n')
-        #osis = re.sub('(<l [^\uFDD0\uFDD1\uFDD3\uFDD4]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
-        #osis = re.sub('(<lg>.+?</lg>)', lambda m: m.group(1).replace('<lb type="x-p"/>', '</lg><lg>'), osis, flags=re.DOTALL) # re-handle \b that occurs within <lg>
 
         # \ili#_text...
-        osis = re.sub(r'\\ili\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE0'+r'\1'+'\uFDE0</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ili(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE0'+r'\2'+'\uFDE0</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\ili\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE0'+r'\1'+'\uFDE0</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\ili(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE0'+r'\2'+'\uFDE0</item>', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
         osis = re.sub('(<item [^\uFDD0\uFDD1\uFDD3\uFDD4]+</item>)', '\uFDD3<list>'+r'\1'+'</list>\uFDD3', osis, flags=re.DOTALL)
 
         # \iot_text...
         # \io#_text...(references range)
-        osis = re.sub(r'\\io\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE1'+r'\1'+'\uFDE1</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\io(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE1'+r'\2'+'\uFDE1</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\iot\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="head">\uFDE1'+r'\1'+'\uFDE1</item type="head">', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\io\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE1'+r'\1'+'\uFDE1</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\io(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE1'+r'\2'+'\uFDE1</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\iot\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="head">\uFDE1'+r'\1'+'\uFDE1</item type="head">', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
         osis = re.sub('(<item [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0]+</item>)', '\uFDD3<div type="outline"><list>'+r'\1'+'</list></div>\uFDD3', osis, flags=re.DOTALL)
         osis = re.sub('item type="head"', 'head', osis)
@@ -721,13 +721,13 @@ def convertToOsis(sFile):
         # \li#(_text...)
         osis = re.sub(r'\\ph\b\s*', r'\\li ', osis)
         osis = re.sub(r'\\ph(\d)\b\s*', r'\\li\1 ', osis)
-        osis = re.sub(r'\\li\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0\uFDE1\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\li\d?\b|<(lb|title|item|/?div|/?chapter)\b))', r'<item type="x-indent-1">\1</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\li(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0\uFDE1\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\li\d?\b|<(lb|title|item|/?div|/?chapter)\b))', r'<item type="x-indent-\1">\2</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\li\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0\uFDE1\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\li\d?\b|<(lb|title|item|/?div|/?chapter)\b))', r'<item type="x-indent-1">\1</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\li(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0\uFDE1\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\li\d?\b|<(lb|title|item|/?div|/?chapter)\b))', r'<item type="x-indent-\1">\2</item>', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
         osis = re.sub('(<item [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDE0\uFDE1\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]+</item>)', '\uFDD3<list>'+r'\1'+'</list>\uFDD3', osis, flags=re.DOTALL)
 
         # \b
-        osis = re.sub(r'\\b\b\s?', '<lb type="x-p"/>', osis)
+        osis = re.sub(r'\\b\b\s?', '\uFDE7<lb type="x-p"/>', osis)
 
         return osis
 
@@ -753,23 +753,20 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\qs\b\s(.+?)\\qs\*', r'<l type="selah">\1</l>', osis, flags=re.DOTALL)
 
         # \q#(_text...)
-        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
 
         # \qr_text...
         # \qc_text...
         # \qm#(_text...)
         qType = {'qr':'x-right', 'qc':'x-center', 'qm':'x-embedded" level="1', 'qm1':'x-embedded" level="1', 'qm2':'x-embedded" level="2', 'qm3':'x-embedded" level="3', 'qm4':'x-embedded" level="4', 'qm5':'x-embedded" level="5'}
-        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE'+r']|\\(q\d?|fig)\b|<(l|lb|title|list|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q\d?|fig)\b|<(l|lb|title|list|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
 
         osis = osis.replace('\n</l>', '</l>\n')
-        osis = re.sub('(<l [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
+        osis = re.sub('(<l [^\uFDD0\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
 
         # x-to-next-level allows line folding like Paratext
         osis = re.sub('(<l level="(\d)")(>.*?</l>(\s*<l level="(\d)">)?)', lambda m: m.group(1)+' subType="x-to-next-level"'+m.group(3) if m.group(4) and int(m.group(2))+1 == int(m.group(5)) else m.group(1)+m.group(3), osis, flags=re.DOTALL)
-
-        # \b
-        osis = re.sub('(<lg>.+?</lg>)', lambda m: m.group(1).replace('<lb type="x-p"/>', r'</lg><lb type="x-p"/><lg>'), osis, flags=re.DOTALL) # re-handle \b that occurs within <lg>
 
         return osis
 
@@ -786,7 +783,7 @@ def convertToOsis(sFile):
         """
 
         # \tr_
-        osis = re.sub(r'\\tr\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\tr\s|<(lb|title)\b))', r'<row>\1</row>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\tr\b\s*(.*?)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\tr\s|<(lb|title)\b))', r'<row>\1</row>', osis, flags=re.DOTALL)
 
         # \th#_text...
         # \thr#_text...
@@ -795,7 +792,7 @@ def convertToOsis(sFile):
         tType = {'th':' role="label"', 'thr':' role="label" type="x-right"', 'tc':'', 'tcr':' type="x-right"'}
         osis = re.sub(r'\\(thr?|tcr?)\d*\b\s*(.*?)(?=(\\t[hc]|</row))', lambda m: '<cell' + tType[m.group(1)] + '>' + m.group(2) + '</cell>', osis, flags=re.DOTALL)
 
-        osis = re.sub(r'(<row>.*?</row>)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4'+r']|\\tr\s|<(lb|title)\b))', r'<table>\1</table>', osis, flags=re.DOTALL)
+        osis = re.sub(r'(<row>.*?</row>)(?=(['+'\uFDD0\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\tr\s|<(lb|title)\b))', r'<table>\1</table>', osis, flags=re.DOTALL)
 
         return osis
 
@@ -1045,7 +1042,7 @@ def convertToOsis(sFile):
         osis = osis.replace('~', '\u00A0')
 
         # //
-        osis = osis.replace('//', '<lb type="x-optional"/>')
+        osis = osis.replace('//', '\uFDE7<lb type="x-optional"/>')
 
         # \pb
         osis = re.sub(r'\\pb\s*', '<milestone type="pb"/>\n', osis, flags=re.DOTALL)
