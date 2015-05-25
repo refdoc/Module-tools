@@ -8,7 +8,6 @@
 
   <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD TEI dictionary modules !-->
 
-  <xsl:output indent="yes"/>
   <xsl:strip-space elements="*"/>
   
   <xsl:template match="/">

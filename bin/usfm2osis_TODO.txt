@@ -5,6 +5,7 @@ DONE: Stop removing <lb/> between line groups.
 DONE: Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
 DONE: Fix markup of secondary sections
 Fix conversion of all container tags to <index/> milestones which is lossy and renders these tags useless.
+Correctly support other types of USFM documents, right now only: osisRefWork="Bible" docs are handled correctly.
 
 TODO for osis2sword.xlt:
 DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
