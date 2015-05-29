@@ -137,7 +137,7 @@ bookDict = {
 
     # Peripheral books
     'FRT':'FRONT', 'INT':'INTRODUCTION', 'BAK':'BACK', 'CNC':'CONCORDANCE', 'GLO':'GLOSSARY',
-    'TDX':'INDEX', 'NDX':'GAZETTEER', 'OTH':'X-OTHER'
+    'TDX':'INDEX', 'NDX':'GAZETTEER', 'OTH':'X-OTHER', 'DIC':'DICTIONARY'
     }
 
 addBookDict = {
@@ -652,7 +652,7 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\cd\b\s+(.+)', '\uFDD4<title type="x-description">'+r'\1</title>', osis)
 
         # \v_#
-        osis = re.sub(r'\\v\s+([^\s]+)\b\s*(.+?)(?=(\\v\s+|</div type="book"|<chapter eID))', lambda m: '\uFDD2<verse osisID="$BOOK$.$CHAP$.' + m.group(1) + '" sID="$BOOK$.$CHAP$.' + m.group(1) + '"/>' + m.group(2) + '<verse eID="$BOOK$.$CHAP$.' + m.group(1) + '"/>\uFDD2\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\v\s+(\d+)\b\s*(.+?)(?=(\\v\s+|</div type="book"|<chapter eID))', lambda m: '\uFDD2<verse osisID="$BOOK$.$CHAP$.' + m.group(1) + '" sID="$BOOK$.$CHAP$.' + m.group(1) + '"/>' + m.group(2) + '<verse eID="$BOOK$.$CHAP$.' + m.group(1) + '"/>\uFDD2\n', osis, flags=re.DOTALL)
 
         # \vp_#\vp*
         # \va_#\va*

@@ -10,15 +10,15 @@ Correctly support other types of USFM documents, right now only: osisRefWork="Bi
 TODO for osis2sword.xlt:
 DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
 DONE: Map certain elements to simplify display classes
-Attribute values should be copied exactly (no entity escaping)
+DONE: Attribute values should be copied exactly (no entity escaping)
 
 TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
 DONE: With <l level="x">, if x==1 this should indent 1 rather than 0.
 DONE: <lb/> between line groups should be displayed.
+DONE: check support for osisRef="TVN:Gen.1.1"
 Add "parallel" to style sheet in addition to x-parallel-passage
 Fix note mouseover hover placement of popup with new HTML.
-check support for osisRef="TVN:Gen.1.1"
 Copy OSIS filters as TEI filters.
 
 TODO for osis2mod.cpp:
