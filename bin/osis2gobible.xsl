@@ -24,6 +24,9 @@
     </xsl:copy>
   </xsl:template>
   
+  <!-- remove comments !-->
+  <xsl:template match="comment()" priority="1"/>
+  
   <!-- remove all tags by default -->
   <xsl:template match="*" priority="1">
     <xsl:apply-templates/>
