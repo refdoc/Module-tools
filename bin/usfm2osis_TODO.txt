@@ -21,6 +21,7 @@ Add "parallel" to style sheet in addition to x-parallel-passage
 Fix note mouseover hover placement of popup with new HTML.
 Copy OSIS filters as TEI filters.
 Implement Companion rather than DictionaryModule and ReferenceBible .conf entries
+Popup passages containing verse spans repeat entire spans
 
 TODO for osis2mod.cpp:
 Pass <p> type as HTML class
