@@ -1,0 +1,11 @@
+# Set newline behavior, overriding core.autocrlf if set.
+
+# "auto" means Git decides if the file is text and normalizes text 
+# files' newlines to LF upon checkin.
+* text=auto
+
+# Declare files that will always have LF line endings on checkout.
+* text eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.idx binary

@@ -17,11 +17,11 @@ DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line
 DONE: With <l level="x">, if x==1 this should indent 1 rather than 0.
 DONE: <lb/> between line groups should be displayed.
 DONE: check support for osisRef="TVN:Gen.1.1"
-Add "parallel" to style sheet in addition to x-parallel-passage
-Fix note mouseover hover placement of popup with new HTML.
-Copy OSIS filters as TEI filters.
-Implement Companion rather than DictionaryModule and ReferenceBible .conf entries
-Popup passages containing verse spans repeat entire spans
+WONT-DO: Add "parallel" to style sheet in addition to x-parallel-passage
+WONT-DO: Fix note mouseover hover placement of popup with new HTML.
+DONE: Implement Companion and deprecate DictionaryModule and ReferenceBible .conf entries
+DONE: Popup passages containing verse spans repeat entire spans
+DONE: Add OSIS filter tag handlers to TEI filter.
 
 TODO for osis2mod.cpp:
 Pass <p> type as HTML class
