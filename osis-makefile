@@ -1,0 +1,28 @@
+MODULE=
+VERSIFICATION=
+DEPLOYADDRESS=XXXX@crosswire.org:/home/XXXX/staging/
+
+all: 
+	osis2mod ./modules/texts/ztext/$(MODULE) osis/$(MODULE).osis.xml -z z -v $(VERSIFICATION)
+
+clean:
+	rm ./modules/texts/ztext/$(MODULE)/*
+	
+deepclean:
+	rm -r ./modules
+	rm -r ./mods.d
+	rm -r ./osis
+	rm *zip
+		
+setup: 
+	mkdir -p osis mods.d modules/texts/ztext/$(MODULE)
+	cp $(MODULE).osis.xml osis/
+	cp $(MODULE).conf mods.d/
+	
+publish: setup all
+
+	zip -r $(MODULE).zip ./mods.d ./modules	
+	scp $(MODULE).zip $(DEPLOYADDRESS)
+	
+help:
+	$(info available targets are 'all', 'clean', 'setup', 'publish')	

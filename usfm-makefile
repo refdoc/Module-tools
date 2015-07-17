@@ -1,0 +1,56 @@
+MODULENAME=
+LANGUAGE=
+STAGINGAREA=XXXX@crosswire.org:/home/XXXX/staging/
+
+USFM=usfm/*SFM
+
+OSIS=./osis/$(MODULENAME).osis.xml
+FIXED=$(OSIS).fixed.xml
+MODULE=./modules/texts/ztext/$(MODULENAME)
+
+all: $(MODULE)
+	
+$(OSIS):
+	./bin/usfm2osis.py $(MODULENAME) -x -o $(OSIS) -l $(LANGUAGE) $(USFM)
+
+$(FIXED): $(OSIS)
+	./bin/xreffix.pl $(OSIS) >xref.log
+	./remotescripts/confmaker.pl $(FIXED) -o ./mods.d/$(MODULENAME).conf -m -l $(LANGUAGE)
+
+
+$(MODULE): $(FIXED)
+	osis2mod $(MODULE) $(FIXED) -z z
+
+
+clean:
+	rm osis/* 
+	rm modules/texts/ztext/$(MODULENAME)/*
+	rm mods.d/*
+	rm xref.log         
+
+deepclean:
+	rm -r osis remotescripts mods.d modules $(MODULENAME).zip locales.d 
+ 
+publish: all
+	cp $(MODULENAME).conf ./mods.d/
+	chmod -R ugoa+rw modules/texts/ztext/$(MODULENAME)
+	zip -r $(MODULENAME).zip mods.d modules
+	scp $(MODULENAME).zip $(STAGINGAREA)
+
+setup:
+	mkdir -p remotescripts osis mods.d modules/texts/ztext/$(MODULENAME) locales.d
+	wget -P remotescripts http://www.crosswire.org/svn/sword-tools/trunk/modules/conf/confmaker.pl
+	wget -P locales.d http://www.crosswire.org/svn/sword/trunk/locales.d/$(LANGUAGE)-utf8.conf
+
+	chmod +x remotescripts/*
+	
+
+
+help:
+	$(info available targets are 'setup', 'all', 'clean', 'deepclean' and  'publish')
+	$(info 'setup' will create the necessary work directories and download various scripts necessary to process your text)	
+	$(info 'clean' will remove all temporary files)
+	$(info 'deepclean' will remove all directories apart from the makefile and the usfm source)
+	$(info 'all' will produce an osis-file, will run xref recognition)
+	$(info 'publish' will produce the module files and a zipped module, ready for testing)
+	
