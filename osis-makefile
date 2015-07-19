@@ -1,6 +1,7 @@
 MODULE=
+INDEX=   # This should be the name of the module in the first conf line (i.e. with all capitalisation) and the current version no, separated by a hyphen.
 VERSIFICATION=
-DEPLOYADDRESS=XXXX@crosswire.org:/home/XXXX/staging/
+DEPLOYADDRESS=XXXX@crosswire.org
 
 all: 
 	osis2mod ./modules/texts/ztext/$(MODULE) osis/$(MODULE).osis.xml -z z -v $(VERSIFICATION)
@@ -20,9 +21,17 @@ setup:
 	cp $(MODULE).conf mods.d/
 	
 publish: setup all
-
+	
+	chmod -R ugoa+rw ./modules/texts/ztext/$(MODULE)/*
 	zip -r $(MODULE).zip ./mods.d ./modules	
-	scp $(MODULE).zip $(DEPLOYADDRESS)
+	scp $(MODULE).zip $(DEPLOYADDRESS):~/staging/
+	
+	mkfastmod $(INDEX)
+	mv ./modules/texts/ztext/$(MODULE)/lucene $(INDEX)
+	zip -j $(INDEX).zip $(INDEX)/*
+	scp $(INDEX).zip $(DEPLOYADDRESS):~/staging/	
+	
+	ssh $(DEPLOYADDRESS) ~/bin/deploy.sh $(MODULE).zip $(INDEX).zip
 	
 help:
 	$(info available targets are 'all', 'clean', 'setup', 'publish')	

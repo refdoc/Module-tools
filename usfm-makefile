@@ -30,12 +30,19 @@ clean:
 
 deepclean:
 	rm -r osis remotescripts mods.d modules $(MODULENAME).zip locales.d 
- 
-publish: all
-	cp $(MODULENAME).conf ./mods.d/
-	chmod -R ugoa+rw modules/texts/ztext/$(MODULENAME)
-	zip -r $(MODULENAME).zip mods.d modules
-	scp $(MODULENAME).zip $(STAGINGAREA)
+
+publish: setup all
+	
+	chmod -R ugoa+rw ./modules/texts/ztext/$(MODULENAME)/*
+	zip -r $(MODULENAME).zip ./mods.d ./modules	
+	scp $(MODULENAME).zip $(DEPLOYADDRESS):~/staging/
+	
+	mkfastmod MAL
+	mv ./modules/texts/ztext/$(MODULENAME)/lucene $(INDEX)
+	zip -j $(INDEX).zip $(INDEX)/*
+	scp $(INDEX).zip $(DEPLOYADDRESS):~/staging/	
+	
+	ssh $(DEPLOYADDRESS) ~/bin/deploy.sh $(MODULENAME).zip $(INDEX).zip
 
 setup:
 	mkdir -p remotescripts osis mods.d modules/texts/ztext/$(MODULENAME) locales.d
