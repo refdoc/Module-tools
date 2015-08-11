@@ -5,20 +5,23 @@ DONE: Stop removing <lb/> between line groups.
 DONE: Add subType="x-to-next-level" when the subsequent <l> will be indented 1 more than the current <l>
 DONE: Fix markup of secondary sections
 Fix conversion of all container tags to <index/> milestones which is lossy and renders these tags useless.
+Correctly support other types of USFM documents, right now only: osisRefWork="Bible" docs are handled correctly.
 
 TODO for osis2sword.xlt:
 DONE: Remove certain elements (Intro title, chapter name, <p type="x-noindent">, footnote references)
 DONE: Map certain elements to simplify display classes
-Attribute values should be copied exactly (no entity escaping)
+DONE: Attribute values should be copied exactly (no entity escaping)
 
 TODO for xulsword:
 DONE: <lg> doesn't correspond to USFM tags and should not appear as a blank line.
 DONE: With <l level="x">, if x==1 this should indent 1 rather than 0.
 DONE: <lb/> between line groups should be displayed.
-Add "parallel" to style sheet in addition to x-parallel-passage
-Fix note mouseover hover placement of popup with new HTML.
-check support for osisRef="TVN:Gen.1.1"
-Copy OSIS filters as TEI filters.
+DONE: check support for osisRef="TVN:Gen.1.1"
+WONT-DO: Add "parallel" to style sheet in addition to x-parallel-passage
+WONT-DO: Fix note mouseover hover placement of popup with new HTML.
+DONE: Implement Companion and deprecate DictionaryModule and ReferenceBible .conf entries
+DONE: Popup passages containing verse spans repeat entire spans
+DONE: Add OSIS filter tag handlers to TEI filter.
 
 TODO for osis2mod.cpp:
 Pass <p> type as HTML class
