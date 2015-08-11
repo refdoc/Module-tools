@@ -1,0 +1,20 @@
+u2o.py vs. usfm2osis.py notes:
+
+\qa (acrostic) has major bug which moves punctation!
+Mishandles \q1 (blank <line>) before new verse
+Needs to move pre-verse titles, references, etc into verse
+Canonical titles are not handled correctly (see above about pre-verse titles)
+Some verses are not well formed in ISA, PRO, and PSA (found by osis2mod, but validates)
+\cl doesn't work right (TKL)
+Uses u"" strings which are not allowed in Python3
+Bug on line 494: r"\ie\n"
+\w glossary\w* handled as index (incorrect and does not validate either)
+Attribute type="psalm" should be reserved only for Psalms
+
+Speed:
+TKL with usfm2osis.py: 83s
+TKL with u2o.py: < 4s
+TKL with u2o.py (orig): < 2s
+
+
+

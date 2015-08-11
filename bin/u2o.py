@@ -63,11 +63,9 @@ Changes:
 '''
 
 #
-#    uFDD0     - used to mark line breaks during processing
-#
-#    uFDE0     - used to mark the start of introductions
-#    uFDE1     - used to mark the end of introductions
-#
+#    \ufdd0     - used to mark line breaks during processing
+#    \ufde0     - used to mark the start of introductions
+#    \ufde1     - used to mark the end of introductions
 
 from __future__ import print_function, unicode_literals
 import sys
@@ -207,42 +205,314 @@ BOOKNAMES = {
 
 # -------------------------------------------------------------------------- #
 
-# set of paragraph style tags
-# * chapter paragraph tags are omitted because we handle them differently
-PARTAGS = {
-    # identification
-    # r"\id",
-    r"\ide", r"\sts", r"\rem", r"\h", r"\h1", r"\h2", r"\h3",
-    r"\toc1", r"\toc2", r"\toc3",
-    # intorduction
-    r"\imt", r"\imt1", r"\imt2", r"\imt3", r"\imt4", r"\is", r"\is1", r"\is2",
-    r"\ip", r"\ipi", r"\im", r"\imi", r"\ipq", r"\imq", r"\ipr", r"\iq",
-    r"\iq1", r"\iq2", r"\iq3", r"\ib", r"\ili", r"\ili1", r"\ili2", r"\iot",
-    r"\io", r"\io1", r"\io2", r"\io3", r"\io4", r"\iex", r"\imte", r"\imte1",
-    r"\imte2", r"\ie",
-    # titles, headings, labels
-    r"\mt", r"\mt1", r"\mt2", r"\mt3", r"\mt4", r"\mte", r"\mte1", r"\mte2",
-    r"\ms", r"\ms1", r"\ms2", r"\ms3", r"\mr", r"\s", r"\s1", r"\s2", r"\s3",
-    r"\s4", r"\sr", r"\r", r"\d", r"\sp",
-    # paragraphs/poetry
-    r"\p", r"\m", r"\pmo", r"\pm", r"\pmc", r"\pmr", r"\pi", r"\pi1", r"\pi2",
-    r"\pi3", r"\mi", r"\cls", r"\li", r"\li1", r"\li2", r"\li3", r"\li4",
-    r"\pc", r"\pr", r"\ph", r"\ph1", r"\ph2", r"\ph3", r"\q", r"\q1", r"\q2",
-    r"\q3", r"\q4", r"\qr", r"\qc", r"\qa", r"\qm", r"\qm1", r"\qm2", r"\qm3",
-    r"\b",
-    # r"\nb"
-    # tables, special features, spacing, peripherals
-    r"\tr", r"\lit", r"\pb", r"\periph"
+# ID related tags
+IDTAGS = {
+    r'\sts': ('<milestone type="x-usfm-sts" n="', '" />'),
+    r'\toc1': ('<milestone type="x-usfm-toc1" n="', '" />'),
+    r'\toc2': ('<milestone type="x-usfm-toc2" n="', '" />'),
+    r'\toc3': ('<milestone type="x-usfm-toc3" n="', '" />'),
+    # the osis 2.1.1 user manual says the value of h h1 h2 and
+    # h3 tags should be in the short attribute of a title.
+    r'\h': ('<title type="runningHead" short="', '" />'),
+    r'\h1': ('<title type="runningHead" n="1" short="', '" />'),
+    r'\h2': ('<title type="runningHead" n="2" short="', '" />'),
+    r'\h3': ('<title type="runningHead" n="3" short="', '" />')
 }
 
-# poetry/prose tags... used by reflow subroutine below.
-PARTAGS2 = {
-    r"\p", r"\m", r"\pmo", r"\pm", r"\pmc", r"\pmr", r"\pi", r"\pi1", r"\pi2",
-    r"\pi3", r"\mi", r"\cls", r"\li", r"\li1", r"\li2", r"\li3",
-    r"\li4", r"\pc", r"\pr", r"\ph", r"\ph1", r"\ph2", r"\ph3", r"\q", r"\q1",
-    r"\q2", r"\q3", r"\q4", r"\qr", r"\qc", r"\qs", r"\qs*", r"\qa", r"\qac",
-    r"\qac*", r"\qm", r"\qm1", r"\qm2", r"\qm3", r"\b"
+# title like tags
+TITLETAGS = {
+    # ##### INTRODUCTIONS ##### #
+    r'\imt': ('<title type="main">', '</title>'),
+    r'\imt1': ('<title level="1" type="main">', '</title>'),
+    r'\imt2': ('<title level="2" type="main">', '</title>'),
+    r'\imt3': ('<title level="3" type="main">', '</title>'),
+    r'\imt4': ('<title level="4" type="main">', '</title>'),
+    r'\imte': ('<title type="main">', '</title>'),
+    r'\imte1': ('<title level="1" type="main">', '</title>'),
+    r'\imte2': ('<title level="2" type="main">', '</title>'),
+    r'\imte3': ('<title level="3" type="main">', '</title>'),
+    r'\imte4': ('<title level="4" type="main">', '</title>'),
+    # these will be put into div's elsewhere
+    r'\is': ('<title type="x-introduction">', '</title>'),
+    r'\is1': ('<title type="x-introduction">', '</title>'),
+    r'\is2': ('<title type="x-introduction">', '</title>'),
+    r'\is3': ('<title type="x-introduction">', '</title>'),
+    r'\is4': ('<title type="x-introduction">', '</title>'),
+    #
+    r'\ib': ('', ''),
+
+    # ##### Normal Title Section ##### #
+    r'\mt': ('<title type="main">', '</title>'),
+    r'\mt1': ('<title level="1" type="main">', '</title>'),
+    r'\mt2': ('<title level="2" type="main">', '</title>'),
+    r'\mt3': ('<title level="3" type="main">', '</title>'),
+    r'\mt4': ('<title level="4" type="main">', '</title>'),
+    r'\mte': ('<title type="main">', '</title>'),
+    r'\mte1': ('<title level="1" type="main">', '</title>'),
+    r'\mte2': ('<title level="2" type="main">', '</title>'),
+    r'\mte3': ('<title level="3" type="main">', '</title>'),
+    r'\mte4': ('<title level="4" type="main">', '</title>'),
+    # these will be put into div's elsewhere
+    r'\ms': ('<title>', '</title>'),
+    r'\ms1': ('<title>', '</title>'),
+    r'\ms2': ('<title>', '</title>'),
+    r'\ms3': ('<title>', '</title>'),
+    r'\ms4': ('<title>', '</title>'),
+    r'\s': ('<title>', '</title>'),
+    r'\s1': ('<title>', '</title>'),
+    r'\s2': ('<title>', '</title>'),
+    r'\s3': ('<title>', '</title>'),
+    r'\s4': ('<title>', '</title>'),
+    #
+    r'\mr': ('<title type="scope"><reference>', '</reference></title>'),
+    r'\sr': ('<title type="scope"><reference>', '</reference></title>'),
+    r'\r': ('<title type="parallel"><reference type="parallel">', '</reference></title>'),
+    r'\d': ('<title canonical="true" type="psalm">', '</title>'),
+    r'\sp': ('<speaker>', '</speaker>'),
+
+    # ##### chapter cl and cd tags ##### #
+    # the osis user manual says to use type="chapterLabel" for
+    # cl title tags, that's not allowed according to the osis 2.1.1
+    # schema though.
+    r'\cl': ('<title type="x-chapterLabel">', '</title>'),
+    # the osis user manual says cd titles should be in an
+    # introduction div.
+    r'\cd': (
+        "<div type=\"introduction\">\ufdd0<title type=\"x-description\">",
+        "</title>\ufdd0</div>"),
+
+    # ##### special features ##### #
+    # the osis user manual says this should be in an
+    # lg tag of type doxology with an l tag of type refrain.
+    # r'\lit': ('<div type="x-liturgical">', '</div>')
+    r'\lit': ("<lg type=\"doxology\">\ufdd0<l type=\"refrain\">",
+              "</l>\ufdd0</lg>")
 }
+
+# paragraph/poetry tags
+PTAGS = {
+    # INTRODUCTIONS
+    r'\iot': (r'<item type="x-head">', r'</item>'),
+    r'\io': (r'<item type="x-indent-1">', r'</item>'),
+    r'\io1': (r'<item type="x-indent-1">', r'</item>'),
+    r'\io2': (r'<item type="x-indent-2">', r'</item>'),
+    r'\io3': (r'<item type="x-indent-3">', r'</item>'),
+    r'\io4': (r'<item type="x-indent-4">', r'</item>'),
+    r'\ip': (r'<p>', r' </p>'),
+    r'\im': (r'<p type="x-noindent">', r' </p>'),
+    r'\ipq': (r'<p type="x-quote">', r' </p>'),
+    r'\imq': (r'<p type="x-noindent-quote">', r' </p>'),
+    r'\ipi': (r'<p type="x-indented">', r' </p>'),
+    r'\imi': (r'<p type="x-noindent-indented">', r' </p>'),
+    r'\ili': (r'<item type="x-indent-1">', r' </item>'),
+    r'\ili1': (r'<item type="x-indent-1">', r' </item>'),
+    r'\ili2': (r'<item type="x-indent-2">', r' </item>'),
+    r'\ipr': (r'<p type="x-right">', r' </p>'),
+    r'\iq': (r'<l level="1">', r' </l>'),
+    r'\iq1': (r'<l level="1">', r' </l>'),
+    r'\iq2': (r'<l level="2">', r' </l>'),
+    r'\iq3': (r'<l level="3">', r' </l>'),
+    r'\iex': (r'<div type="bridge">', r'</div>'),
+    r'\ie': (r'<!-- ie -->', r''),
+
+    # ##### PARAGRAPH/POETRY
+    r'\p': (r'<p>', r' </p>'),
+    r'\m': (r'<p type="x-noindent">', r' </p>'),
+    r'\pmo': (r'<p type="x-embedded-opening">', r' </p>'),
+    r'\pm': (r'<p type="x-embedded">', r' </p>'),
+    r'\pmc': (r'<p type="x-embedded-closing">', r' </p>'),
+    r'\pmr': (r'<p type="x-right">', r' </p>'),
+    r'\pi': (r'<p type="x-indented">', r' </p>'),
+    r'\pi1': (r'<p type="x-indented-1">', r' </p>'),
+    r'\pi2': (r'<p type="x-indented-2">', r' </p>'),
+    r'\pi3': (r'<p type="x-indented-3">', r' </p>'),
+    r'\pi4': (r'<p type="x-indented-4">', r' </p>'),
+    r'\mi': (r'<p type="x-noindent-indented">', r' </p>'),
+    r'\cls': (r'<closer>', r'</closer>'),
+    r'\li': (r'<item type="x-indent-1">', r' </item>'),
+    r'\li1': (r'<item type="x-indent-1">', r' </item>'),
+    r'\li2': (r'<item type="x-indent-2">', r' </item>'),
+    r'\li3': (r'<item type="x-indent-3">', r' </item>'),
+    r'\li4': (r'<item type="x-indent-4">', r' </item>'),
+    r'\pc': (r'<p type="x-center">', r' </p>'),
+    r'\pr': (r'<p type="x-right">', r' </p>'),
+    r'\ph': (r'<item type="x-indent-1">', r' </item>'),
+    r'\ph1': (r'<item type="x-indent-1">', r' </item>'),
+    r'\ph2': (r'<item type="x-indent-2">', r' </item>'),
+    r'\ph3': (r'<item type="x-indent-3">', r' </item>'),
+    # POETRY Markers
+    r'\q': (r'<l level="1">', r' </l>'),
+    r'\q1': (r'<l level="1">', r' </l>'),
+    r'\q2': (r'<l level="2">', r' </l>'),
+    r'\q3': (r'<l level="3">', r' </l>'),
+    r'\q4': (r'<l level="4">', r' </l>'),
+    r'\qr': (r'<l type="x-right">', r' </l>'),
+    r'\qc': (r'<l type="x-center">', r' </l>'),
+    r'\qa': (r'<title type="acrostic">', r'</title>'),
+    r'\qm': (r'<l type="x-embedded" level="1">', r' </l>'),
+    r'\qm1': (r'<l type="x-embedded" level="1">', r' </l>'),
+    r'\qm2': (r'<l type="x-embedded" level="2">', r' </l>'),
+    r'\qm3': (r'<l type="x-embedded" level="3">', r' </l>'),
+    r'\qm4': (r'<l type="x-embedded" level="4">', r' </l>')
+}
+
+# other introduction, title, paragraph/poetry tags
+OTHERTAGS = {
+    r'\ior ': '<reference>',
+    r'\ior*': '</reference>',
+    r'\iqt ': '<q subType="x-introduction">',
+    r'\iqt*': '</q>',
+    r'\ie': '<!-- ie -->',
+    r'\rq ': '<reference type="source">',
+    r'\rq*': '</reference>',
+    r'\qs ': '<selah>',
+    r'\qs*': '</selah>',
+    r'\qac ': '<hi type="acrostic">',
+    r'\qac*': '</hi>',
+    r'\b': '<lb type="x-p"/>',
+    r'\nb ': '<!-- nb -->'
+}
+
+# table cell tags
+CELLTAGS = {
+    # header cells
+    r'\th': ('<cell role="label">', '</cell>'),
+    r'\th1': ('<cell role="label">', '</cell>'),
+    r'\th2': ('<cell role="label">', '</cell>'),
+    r'\th3': ('<cell role="label">', '</cell>'),
+    r'\th4': ('<cell role="label">', '</cell>'),
+    r'\th5': ('<cell role="label">', '</cell>'),
+    r'\thr': ('<cell role="label" type="x-right">', '</cell>'),
+    r'\thr1': ('<cell role="label" type="x-right">', '</cell>'),
+    r'\thr2': ('<cell role="label" type="x-right">', '</cell>'),
+    r'\thr3': ('<cell role="label" type="x-right">', '</cell>'),
+    r'\thr4': ('<cell role="label" type="x-right">', '</cell>'),
+    r'\thr5': ('<cell role="label" type="x-right">', '</cell>'),
+    # normal cells
+    r'\tc': ('<cell>', '</cell>'),
+    r'\tc1': ('<cell>', '</cell>'),
+    r'\tc2': ('<cell>', '</cell>'),
+    r'\tc3': ('<cell>', '</cell>'),
+    r'\tc4': ('<cell>', '</cell>'),
+    r'\tc5': ('<cell>', '</cell>'),
+    r'\tcr': ('<cell type="x-right">', '</cell>'),
+    r'\tcr1': ('<cell type="x-right">', '</cell>'),
+    r'\tcr2': ('<cell type="x-right">', '</cell>'),
+    r'\tcr3': ('<cell type="x-right">', '</cell>'),
+    r'\tcr4': ('<cell type="x-right">', '</cell>'),
+    r'\tcr5': ('<cell type="x-right">', '</cell>')
+}
+
+# special text tags
+SPECIALTEXTTAGS = {
+    r"\add": ('<transChange type="added">', '</transChange>'),
+    r"\wj": ('<q who="Jesus" marker="">', '</q>'),
+    r"\nd": ('<divineName>', '</divineName>'),
+    r"\pn": ('<name>', '</name>'),
+    r"\qt": ('<seg type="otPassage">', '</seg>'),
+    r"\sig": ('<signed>', '</signed>'),
+    r"\ord": ('<hi type="super">', '</hi>'),
+    r"\tl": ('<foreign>', '</foreign>'),
+    r"\bk": ('<name type="x-usfm-bk">', '</name>'),
+    r"\k": ('<seg type="keyword">', '</seg>'),
+    r"\dc": ('<transChange type="added" edition="dc">', '</transChange>'),
+    r"\sls": ('foreign type="x-secondaryLanguage">', '</foreign>'),
+    r"\em": ('<hi type="emphasis">', '</hi>'),
+    r"\bd": ('<hi type="bold">', '</hi>'),
+    r"\it": ('<hi type="italic">', '</hi>'),
+    r"\bdit": ('<hi type="bold"><hi type="italic">', '</hi></hi>'),
+    r"\no": ('<hi type="normal">', '</hi>'),
+    r"\sc": ('<hi type="small-caps">', '</hi>')
+}
+SPECIALTEXTRE = re.compile(
+    r'''
+        (?P<tag>\\\+?
+            (?:''' +
+              "|".join((i[1:] for i in SPECIALTEXTTAGS.keys())) +
+            ''')
+        )
+        \s+
+        (?P<osis>.*?)
+        (?P=tag)\*
+    ''', re.U + re.VERBOSE)
+# *** nested version of special text character styles
+for tag, val in (list(SPECIALTEXTTAGS.items())):
+    SPECIALTEXTTAGS[r"\+" + tag[1:]] = val
+
+# note tags
+NOTETAGS = {
+    r"\f": ('<note placement="foot">', '</note>'),
+    r"\fe": ('<note placement="end">', '</note>'),
+    r"\x": ('<note type="crossReference">', '</note>'),
+    r"\ef": ('<note placement="foot">', '</note>'),
+    r"\ex": ('<note type="crossReference">', '</note>')
+}
+NOTERE = re.compile(
+    r'''
+        (?P<tag>\\(?:''' +
+        "|".join((i[1:] for i in NOTETAGS.keys())) +
+        '''))
+        \s
+        \S
+        \s
+        (?P<osis>.*?)
+        (?P=tag)\*
+    ''', re.U + re.VERBOSE)
+
+# Note markup tags
+NOTEMARKTAGS = {
+    r"\fm": ('<hi type="super">', '</hi>'),
+    r"\fdc": ('<seg editions="dc">', '</seg>'),
+    r"\fr": ('<reference type="annotateRef">', "</reference>"),
+    r"\fk": ("<catchWord>", "</catchWord>"),
+    r"\fq": ("<catchWord>", "</catchWord>"),
+    r"\fqa": ('<rdg type="alternate">', "</rdg>"),
+    # I think this should be label, but that doesn't validate.
+    # r"\fl": ('<label>', '</label>'),
+    r"\fl": ('<seg type="x-usfm-fl">', '</seg>'),
+    r"\fv": ('<hi type="super">', "</hi>"),
+    r"\ft": ("", ""),
+    r"\xot": ('<seg editions="ot">', '</seg>'),
+    r"\xnt": ('<seg editions="nt">', '</seg>'),
+    r"\xdc": ('<seg editions="dc">', '</seg>'),
+    r"\xo": ('<reference type="annotateRef">', '</reference>'),
+    r"\xk": ("<catchWord>", "</catchWord>"),
+    r"\xq": ("<catchWord>", "</catchWord>"),
+    r"\xt": ("<reference>", "</reference>")
+}
+NOTEMARKRE = re.compile(
+    r'''
+        (
+          </note |
+          \\
+          (?P<nesting>\+?)
+          (?P<tag>''' + "|".join((i[1:] for i in NOTEMARKTAGS.keys())) + ''')
+          (?P<end>[\s\*])
+        )
+    ''', re.U + re.VERBOSE)
+    
+SPECIALFEATURETAGS = {
+    # The OSIS manual suggests these special feature USFM tags
+    # be converted to milestone <index/> tags in OSIS, but such 
+    # conversion would be lossy in cases where targets are multiple words
+    # (as commonly happens with glossary entries, etc.). So, <w> is the 
+    # best solution I can see with the existing schema.
+    r"\ndx": ('<w type="x-index">', '</w>'),
+    r"\w": ('<w type="x-glossary">', '</w>'),
+    r"\wg": ('<w type="x-greek">', '</w>'),
+    r"\wh": ('<w type="x-hebrew">', '</w>'),
+    r"\pro": ('<milestone type="x-usfm-pro" n="', '" /> ')
+}
+SPECIALFEATURERE = re.compile(
+    r'''
+        (?P<tag>\\(?:''' +
+        "|".join((i[1:] for i in SPECIALFEATURETAGS.keys())) +
+        '''))
+        \s+
+        (?P<osis>.*?)
+        (?P=tag)\*
+    ''', re.U + re.VERBOSE)
+
 
 # -------------------------------------------------------------------------- #
 # REGULAR EXPRESSIONS
@@ -250,44 +520,6 @@ PARTAGS2 = {
 # squeeze whitespace into single space character
 SQUEEZE = re.compile(r"\s+", re.U + re.M + re.DOTALL)
 
-# matches special text and character styles
-SPECIALTEXTRE = re.compile(
-    r'''
-        (?P<tag>\\\+?
-            (?:add|wj|nd|pn|qt|sig|ord|tl|bk|k|dc|sls|em|bd|it|bdit|no|sc)
-        )
-        \s+
-        (?P<osis>.*?)
-        (?P=tag)\*
-    ''', re.U + re.VERBOSE)
-
-# matches special feature tags
-SPECIALFEATURESRE = re.compile(
-    r'''
-        (?P<tag>\\(?:ndx|pro|w[gh]?))
-        \s+
-        (?P<osis>.*?)
-        (?P=tag)\*
-    ''', re.U + re.VERBOSE)
-
-# regex used in footnote/crossref functions
-NOTERE = re.compile(
-    r'''
-        (?P<tag>\\(?:fe?|x|e[fx]))
-        \s
-        \S
-        \s
-        (?P<osis>.*?)
-        (?P=tag)\*
-    ''', re.U + re.VERBOSE)
-# --- this need work...
-NOTEFIXRE = re.compile(
-    r'''
-        (\\(?:f[rklpvtm]|fdc|fqa?|xot?|xn?t|xdc|x[kq]))
-        \s
-        (.*?)
-        (?=\\[fx]|</note)
-    ''', re.U + re.VERBOSE)
 
 # match \cp \vp \ca and \va tags
 CPRE = re.compile(
@@ -465,55 +697,22 @@ def reflow(text):
     Reflow the text for processing, placing all paragraph style tags on their
     own line. This makes it significantly easier to handle paragraph markup.
     '''
-    mangletext = False
 
-    # test for paragraph markup before mangling the text
-    for i in PARTAGS2:
+    text = SQUEEZE.sub(" ", text)
+    # these (and only these) tags will start new lines
+    tags = list(IDTAGS.keys()) + list(TITLETAGS.keys()) + list(PTAGS.keys()) + [r"\periph", r"\tr", r"\ide", r"\rem", r"\c", r"\b"]
+    for i in tags:
         if i in text:
-            mangletext = True
-            break
+            text = text.replace(r"{} ".format(i), "\n{} ".format(i))
 
-    # process text with paragraph formatting
-    if mangletext:
-        text = SQUEEZE.sub(" ", text)
-        # put (almost) all paragraph style tags on separate lines
-        # would regex be faster than a simple string operation here?
-        for i in PARTAGS:
-            if i in text:
-                text = text.replace(r"{} ".format(i), "\n{} ".format(i))
+    # always add a newline after \ie (may miss some of these tags)
+    if r'\ie ' in text:
+        text = text.replace(r"\ie ", "\ie\n")
 
-        # always make sure \cl and \cd appear on newlines if present
-        # since we handle those with titles.
-        if r"\cl " in text:
-            text = text.replace(r"\cl ", "\n\\cl ")
-        if r"\cd " in text:
-            text = text.replace(r"\cd ", "\n\\cd ")
+    # always make sure \cp tag has a space preceding it if present
+    if r"\cp" in text:
+        text = text.replace(r"\cp", r" \cp")
 
-        # always add a newline after \ie (may miss some of these tags)
-        if r'\ie ' in text:
-            text = text.replace(r"\ie ", r"\ie\n")
-
-        # always make sure chapter 1 marker is on a new line.
-        text = text.replace(r"\c 1 ", "\n\\c 1")
-
-        # always make sure \cp tag has a space preceding it if present
-        if r"\cp" in text:
-            text = text.replace(r"\cp", r" \cp")
-
-    # process text without paragraph markup (may not work. needs testing.)
-    else:
-        # make sure all lines start with a usfm tag...
-        lines = text.split("\n")
-        for i in range(len(lines)-1, 0, -1):
-            if not lines[i].startswith("\\"):
-                lines[i-1] = "{} {}".format(lines[i-1], lines[1])
-                lines.pop(i)
-        text = "\n".join(lines)
-        # remove some newlines that we don't want...
-        for i in [r'\ca', r'\cp', r'\va', r'\vp']:
-            text = text.replace("\n{}".format(i), " {}".format(i))
-
-    # done
     return text
 
 
@@ -621,29 +820,17 @@ def convert_to_osis(text, bookid="TEST"):
 
         id, ide, sts, rem, h, h1, h2, h3, toc1, toc2, toc3
         '''
-        idtags = {
-            r'\sts': ('<milestone type="x-usfm-sts" n="', '" />'),
-            r'\toc1': ('<milestone type="x-usfm-toc1" n="', '" />'),
-            r'\toc2': ('<milestone type="x-usfm-toc2" n="', '" />'),
-            r'\toc3': ('<milestone type="x-usfm-toc3" n="', '" />'),
-            # the osis 2.1.1 user manual says the value of h h1 h2 and
-            # h3 tags should be in the short attribute of a title.
-            r'\h': ('<title type="runningHead" short="', '" />'),
-            r'\h1': ('<title type="runningHead" n="1" short="', '" />'),
-            r'\h2': ('<title type="runningHead" n="2" short="', '" />'),
-            r'\h3': ('<title type="runningHead" n="3" short="', '" />')
-        }
 
         # the osis 2.1.1 user manual says the value of id, ide, and
         # rem should be placed in description tags in the header.
         idtags2 = [r'\id', r'\ide', r'\rem']
 
         line = text.partition(" ")
-        if line[0] in idtags.keys():
-            text = u"{}{}{}\ufdd0".format(
-                idtags[line[0]][0],
+        if line[0] in IDTAGS.keys():
+            text = "{}{}{}\ufdd0".format(
+                IDTAGS[line[0]][0],
                 line[2].strip(),
-                idtags[line[0]][1])
+                IDTAGS[line[0]][1])
         elif line[0] in idtags2:
             description.append(
                 u'<description {} subType="x-{}">{}</description>'.format(
@@ -655,7 +842,7 @@ def convert_to_osis(text, bookid="TEST"):
 
     # ---------------------------------------------------------------------- #
 
-    def titlepar(text):
+    def titlepar(aline):
         '''
          Process title and paragraph tags
 
@@ -663,216 +850,30 @@ def convert_to_osis(text, bookid="TEST"):
            to how simple it is to handle these tags.
          '''
 
-        # title tags
-        ttags = {
-            # ##### INTRODUCTIONS ##### #
-            r'\imt': ('<title type="main">', '</title>'),
-            r'\imt1': ('<title level="1" type="main">', '</title>'),
-            r'\imt2': ('<title level="2" type="main">', '</title>'),
-            r'\imt3': ('<title level="3" type="main">', '</title>'),
-            r'\imt4': ('<title level="4" type="main">', '</title>'),
-            r'\imte': ('<title type="main">', '</title>'),
-            r'\imte1': ('<title level="1" type="main">', '</title>'),
-            r'\imte2': ('<title level="2" type="main">', '</title>'),
-            r'\imte3': ('<title level="3" type="main">', '</title>'),
-            r'\imte4': ('<title level="4" type="main">', '</title>'),
-            # these will be put into div's elsewhere
-            r'\is': ('<title type="x-introduction">', '</title>'),
-            r'\is1': ('<title type="x-introduction">', '</title>'),
-            r'\is2': ('<title type="x-introduction">', '</title>'),
-            r'\is3': ('<title type="x-introduction">', '</title>'),
-            r'\is4': ('<title type="x-introduction">', '</title>'),
-            #
-            r'\ib': ('', ''),
-
-            # ##### Normal Title Section ##### #
-            r'\mt': ('<title type="main">', '</title>'),
-            r'\mt1': ('<title level="1" type="main">', '</title>'),
-            r'\mt2': ('<title level="2" type="main">', '</title>'),
-            r'\mt3': ('<title level="3" type="main">', '</title>'),
-            r'\mt4': ('<title level="4" type="main">', '</title>'),
-            r'\mte': ('<title type="main">', '</title>'),
-            r'\mte1': ('<title level="1" type="main">', '</title>'),
-            r'\mte2': ('<title level="2" type="main">', '</title>'),
-            r'\mte3': ('<title level="3" type="main">', '</title>'),
-            r'\mte4': ('<title level="4" type="main">', '</title>'),
-            # these will be put into div's elsewhere
-            r'\ms': ('<title>', '</title>'),
-            r'\ms1': ('<title>', '</title>'),
-            r'\ms2': ('<title>', '</title>'),
-            r'\ms3': ('<title>', '</title>'),
-            r'\ms4': ('<title>', '</title>'),
-            r'\s': ('<title>', '</title>'),
-            r'\s1': ('<title>', '</title>'),
-            r'\s2': ('<title>', '</title>'),
-            r'\s3': ('<title>', '</title>'),
-            r'\s4': ('<title>', '</title>'),
-            #
-            r'\mr': ('<title type="scope"><reference>',
-                     '</reference></title>'),
-            r'\sr': ('<title type="scope"><reference>',
-                     '</reference></title>'),
-            r'\r': ('<title type="parallel"><reference type="parallel">',
-                    '</reference></title>'),
-            r'\d': ('<title type="psalm" canonical="true">', '</title>'),
-            r'\sp': ('<speaker>', '</speaker>'),
-
-            # ##### chapter cl and cd tags ##### #
-            # the osis user manual says to use type="chapterLabel" for
-            # cl title tags, that's not allowed according to the osis 2.1.1
-            # schema though.
-            r'\cl': ('<title>', '</title>'),
-            # the osis user manual says cd titles should be in an
-            # introduction div.
-            r'\cd': (
-                u'<div type="introduction">\ufdd0<title type="x-description">',
-                u'</title>\ufdd0</div>'),
-
-            # ##### special features ##### #
-            # the osis user manual says this should be in an
-            # lg tag of type doxology with an l tag of type refrain.
-            # r'\lit': ('<div type="x-liturgical">', '</div>')
-            r'\lit': (u'<lg type="doxology">\ufdd0<l type="refrain">',
-                      u'</l>\ufdd0</lg>')
-        }
-        # add periph tag to ttags if book being processed
+        # add periph tag to TITLETAGS if book being processed
         # is a  peripheral or private use book.
         if bookid in ['FRONT', 'INTRODUCTION', 'BACK', 'X-OTHER', 'XXA',
                       'XXB', 'XXC', 'XXD', 'XXE', 'XXF', 'XXG']:
-            ttags[r'\periph'] = ('<title type="main">', '</title>')
+            TITLETAGS[r'\periph'] = ('<title type="main">', '</title>')
 
-        # paragraph/poetry tags
-        ptags = {
-            # INTRODUCTIONS
-            r'\iot': (r'<item type="x-head">', r'</item>'),
-            r'\io': (r'<item type="x-indent-1">', r'</item>'),
-            r'\io1': (r'<item type="x-indent-1">', r'</item>'),
-            r'\io2': (r'<item type="x-indent-2">', r'</item>'),
-            r'\io3': (r'<item type="x-indent-3">', r'</item>'),
-            r'\io4': (r'<item type="x-indent-4">', r'</item>'),
-            r'\ip': (r'<p>', r' </p>'),
-            r'\im': (r'<p type="x-noindent">', r' </p>'),
-            r'\ipq': (r'<p type="x-quote">', r' </p>'),
-            r'\imq': (r'<p type="x-noindent-quote">', r' </p>'),
-            r'\ipi': (r'<p type="x-indented">', r' </p>'),
-            r'\imi': (r'<p type="x-noindent-indented">', r' </p>'),
-            r'\ili': (r'<item type="x-indent-1">', r' </item>'),
-            r'\ili1': (r'<item type="x-indent-1">', r' </item>'),
-            r'\ili2': (r'<item type="x-indent-2">', r' </item>'),
-            r'\ipr': (r'<p type="x-right">', r' </p>'),
-            r'\iq': (r'<l level="1">', r' </l>'),
-            r'\iq1': (r'<l level="1">', r' </l>'),
-            r'\iq2': (r'<l level="2">', r' </l>'),
-            r'\iq3': (r'<l level="3">', r' </l>'),
-            r'\iex': (r'<div type="bridge">', r'</div>'),
-            r'\ie': (r'<!-- ie -->', r''),
-
-            # ##### PARAGRAPH/POETRY
-            r'\p': (r'<p>', r' </p>'),
-            r'\m': (r'<p type="x-noindent">', r' </p>'),
-            r'\pmo': (r'<p type="x-embedded-opening">', r' </p>'),
-            r'\pm': (r'<p type="x-embedded">', r' </p>'),
-            r'\pmc': (r'<p type="x-embedded-closing">', r' </p>'),
-            r'\pmr': (r'<p type="x-right">', r' </p>'),
-            r'\pi': (r'<p type="x-indented">', r' </p>'),
-            r'\pi1': (r'<p type="x-indented-1">', r' </p>'),
-            r'\pi2': (r'<p type="x-indented-2">', r' </p>'),
-            r'\pi3': (r'<p type="x-indented-3">', r' </p>'),
-            r'\pi4': (r'<p type="x-indented-4">', r' </p>'),
-            r'\mi': (r'<p type="x-noindent-indented">', r' </p>'),
-            r'\cls': (r'<closer>', r'</closer>'),
-            r'\li': (r'<item type="x-indent-1">', r' </item>'),
-            r'\li1': (r'<item type="x-indent-1">', r' </item>'),
-            r'\li2': (r'<item type="x-indent-2">', r' </item>'),
-            r'\li3': (r'<item type="x-indent-3">', r' </item>'),
-            r'\li4': (r'<item type="x-indent-4">', r' </item>'),
-            r'\pc': (r'<p type="x-center">', r' </p>'),
-            r'\pr': (r'<p type="x-right">', r' </p>'),
-            r'\ph': (r'<item type="x-indent-1">', r' </item>'),
-            r'\ph1': (r'<item type="x-indent-1">', r' </item>'),
-            r'\ph2': (r'<item type="x-indent-2">', r' </item>'),
-            r'\ph3': (r'<item type="x-indent-3">', r' </item>'),
-            # POETRY Markers
-            r'\q': (r'<l level="1">', r' </l>'),
-            r'\q1': (r'<l level="1">', r' </l>'),
-            r'\q2': (r'<l level="2">', r' </l>'),
-            r'\q3': (r'<l level="3">', r' </l>'),
-            r'\q4': (r'<l level="4">', r' </l>'),
-            r'\qr': (r'<l type="x-right">', r' </l>'),
-            r'\qc': (r'<l type="x-center">', r' </l>'),
-            r'\qa': (r'<title type="acrostic">', r'</title>'),
-            r'\qm': (r'<l type="x-embedded" level="1">', r' </l>'),
-            r'\qm1': (r'<l type="x-embedded" level="1">', r' </l>'),
-            r'\qm2': (r'<l type="x-embedded" level="2">', r' </l>'),
-            r'\qm3': (r'<l type="x-embedded" level="3">', r' </l>'),
-            r'\qm4': (r'<l type="x-embedded" level="4">', r' </l>')
-        }
-
-        # other introduction, title, paragraph/poetry tags
-        otags = {
-            r'\ior ': '<reference>',
-            r'\ior*': '</reference>',
-            r'\iqt ': '<q subType="x-introduction">',
-            r'\iqt*': '</q>',
-            r'\ie': '<!-- ie -->',
-            r'\rq ': '<reference type="source">',
-            r'\rq*': '</reference>',
-            r'\qs ': '<selah>',
-            r'\qs*': '</selah>',
-            r'\qac ': '<hi type="acrostic">',
-            r'\qac*': '</hi>',
-            r'\b ': '<!-- b -->\n',
-            r'\nb ': '<!-- nb -->'
-        }
-
-        # table cell tags
-        celltags = {
-            # header cells
-            r'\th': ('<cell role="label">', '</cell>'),
-            r'\th1': ('<cell role="label">', '</cell>'),
-            r'\th2': ('<cell role="label">', '</cell>'),
-            r'\th3': ('<cell role="label">', '</cell>'),
-            r'\th4': ('<cell role="label">', '</cell>'),
-            r'\th5': ('<cell role="label">', '</cell>'),
-            r'\thr': ('<cell role="label" type="x-right">', '</cell>'),
-            r'\thr1': ('<cell role="label" type="x-right">', '</cell>'),
-            r'\thr2': ('<cell role="label" type="x-right">', '</cell>'),
-            r'\thr3': ('<cell role="label" type="x-right">', '</cell>'),
-            r'\thr4': ('<cell role="label" type="x-right">', '</cell>'),
-            r'\thr5': ('<cell role="label" type="x-right">', '</cell>'),
-            # normal cells
-            r'\tc': ('<cell>', '</cell>'),
-            r'\tc1': ('<cell>', '</cell>'),
-            r'\tc2': ('<cell>', '</cell>'),
-            r'\tc3': ('<cell>', '</cell>'),
-            r'\tc4': ('<cell>', '</cell>'),
-            r'\tc5': ('<cell>', '</cell>'),
-            r'\tcr': ('<cell type="x-right">', '</cell>'),
-            r'\tcr1': ('<cell type="x-right">', '</cell>'),
-            r'\tcr2': ('<cell type="x-right">', '</cell>'),
-            r'\tcr3': ('<cell type="x-right">', '</cell>'),
-            r'\tcr4': ('<cell type="x-right">', '</cell>'),
-            r'\tcr5': ('<cell type="x-right">', '</cell>')
-        }
-
-        line = list(text.partition(" "))
+        line = list(aline.partition(" "))
 
         # process titles and sections
-        if line[0] in ttags.keys():
-            text = u"\ufdd0<!-- {} -->{}{}{}\ufdd0".format(
+        if line[0] in TITLETAGS.keys():
+            aline = u"\ufdd0<!-- {} -->{}{}{}\ufdd0".format(
                 line[0].replace("\\", ""),
-                ttags[line[0]][0],
+                TITLETAGS[line[0]][0],
                 line[2].strip(),
-                ttags[line[0]][1])
+                TITLETAGS[line[0]][1])
 
         # process paragraphs
-        elif line[0] in ptags.keys():
-            pstart, pend = ptags[line[0]]
+        elif line[0] in PTAGS.keys():
+            pstart, pend = PTAGS[line[0]]
             if pstart.startswith("<p"):
                 pstart = u"{}\ufdd0".format(pstart)
                 pend = u"\ufdd0{}\ufdd0".format(pend)
 
-            text = u"{}{}{}\ufdd0".format(pstart,
+            aline = "{}{}{}\ufdd0".format(pstart,
                                           line[2].strip(),
                                           pend)
 
@@ -883,28 +884,28 @@ def convert_to_osis(text, bookid="TEST"):
             cells = line[2].split("\n")
             for i in range(len(cells)):
                 tmp = list(cells[i].partition(" "))
-                if tmp[0] in celltags.keys():
+                if tmp[0] in CELLTAGS.keys():
                     cells[i] = "{}{}{}".format(
-                        celltags[tmp[0]][0],
+                        CELLTAGS[tmp[0]][0],
                         tmp[2].strip(),
-                        celltags[tmp[0]][1])
-            text = u'<row>{}</row>\ufdd0'.format("".join(cells))
+                        CELLTAGS[tmp[0]][1])
+            aline = "<row>{}</row>\ufdd0".format("".join(cells))
 
         # other title, paragraph, intro tags
-        for i in otags.keys():
-            text = text.replace(i, otags[i])
+        for i in OTHERTAGS.keys():
+            aline = aline.replace(i, OTHERTAGS[i])
 
         # fix selah.
-        if "<selah>" in text:
-            if text.startswith("<l"):
-                text = text.replace('<selah>', '</l><l type="selah">')
-                text = text.replace('</selah>', '</l><l>')
+        if "<selah>" in aline:
+            if aline.startswith("<l"):
+                aline = aline.replace('<selah>', '</l><l type="selah">')
+                aline = aline.replace('</selah>', '</l><l>')
                 # simple cleanup
-                text = text.replace('<l></l>', '')
-                text = text.replace('<l> </l>', '')
-                text = text.replace('<l>  </l>', '')
+                aline = aline.replace('<l></l>', '')
+                aline = aline.replace('<l> </l>', '')
+                aline = aline.replace('<l>  </l>', '')
 
-        return text
+        return aline
 
     def fixgroupings(lines):
         '''
@@ -1133,148 +1134,102 @@ def convert_to_osis(text, bookid="TEST"):
 
         def simplerepl(match):
             ''' simple regex replacement helper function '''
-            tag = {
-                r"\add": ('<transChange type="added">', '</transChange>'),
-                r"\wj": ('<q who="Jesus" marker="">', '</q>'),
-                r"\nd": ('<divineName>', '</divineName>'),
-                r"\pn": ('<name>', '</name>'),
-                r"\qt": ('<seg type="otPassage">', '</seg>'),
-                r"\sig": ('<signed>', '</signed>'),
-                r"\ord": ('<hi type="super">', '</hi>'),
-                r"\tl": ('<foreign>', '</foreign>'),
-                r"\bk": ('<name type="x-usfm-bk">', '</name>'),
-                r"\k": ('<seg type="keyword">', '</seg>'),
-                r"\dc": ('<transChange type="added" edition="dc">',
-                         '</transChange>'),
-                r"\sls": ('foreign type="x-secondaryLanguage">',
-                          '</foreign>'),
-
-                r"\em": ('<hi type="emphasis">', '</hi>'),
-                r"\bd": ('<hi type="bold">', '</hi>'),
-                r"\it": ('<hi type="italic">', '</hi>'),
-                r"\bdit": ('<hi type="bold"><hi type="italic">',
-                           '</hi></hi>'),
-                r"\no": ('<hi type="normal">', '</hi>'),
-                r"\sc": ('<hi type="small-caps">', '</hi>'),
-
-
-                # *** nested version of special text character styles
-                r"\+add": ('<transChange type="added">', '</transChange>'),
-                r"\+wj": ('<q who="Jesus" marker="">', '</q>'),
-                r"\+nd": ('<divineName>', '</divineName>'),
-                r"\+pn": ('<name>', '</name>'),
-                r"\+qt": ('<seg type="otPassage">', '</seg>'),
-                r"\+sig": ('<signed>', '</signed>'),
-                r"\+ord": ('<hi type="super">', '</hi>'),
-                r"\+tl": ('<foreign>', '</foreign>'),
-                r"\+bk": ('<name type="x-usfm-bk">', '</name>'),
-                r"\+k": ('<seg type="keyword">', '</seg>'),
-                r"\+dc": ('<transChange type="added" edition="dc">',
-                          '</transChange>'),
-                r"\+sls": ('<foreign type="x-secondaryLanguage">',
-                           '</foreign>'),
-
-                r"\+em": ('<hi type="emphasis">', '</hi>'),
-                r"\+bd": ('<hi type="bold">', '</hi>'),
-                r"\+it": ('<hi type="italic">', '</hi>'),
-                r"\+bdit": ('<hi type="bold"><hi type="italic">',
-                            '</hi></hi>'),
-                r"\+no": ('<hi type="normal">', '</hi>'),
-                r"\+sc": ('<hi type="small-caps">', '</hi>')
-            }[match.group("tag")]
+            tag = SPECIALTEXTTAGS[match.group("tag")]
             return "{}{}{}".format(tag[0], match.group("osis"), tag[1])
         text = SPECIALTEXTRE.sub(simplerepl, text, 0)
 
         return text
 
-    def footnotecrossrefmarkers(text):
+    def footnotecrossrefmarkers(aline):
         '''
         process footnote and cross reference markers
         '''
 
-        def notefix(notetext):
-            '''
-            additional footnote and cross reference tag processing
-            '''
-            def notefixsub(fnmatch):
-                ''' simple regex replacement helper function '''
-                tag = {
-                    r"\fm": ('<hi type="super">', '</hi>'),
-                    r"\fdc": ('<seg editions="dc">', '</seg>'),
-                    r"\fr": ('<reference type="annotateRef">',
-                             "</reference>"),
-                    r"\fk": ("<catchWord>", "</catchWord>"),
-                    r"\fq": ("<catchWord>", "</catchWord>"),
-                    r"\fqa": ('<rdg type="alternate">', "</rdg>"),
-                    # I think this should be label, but that doesn't validate.
-                    # r"\fl": ('<label>', '</label>'),
-                    r"\fl": ('<seg type="x-usfm-fl">', '</seg>'),
-                    r"\fv": ('<hi type="super">', "</hi>"),
-                    r"\ft": ("", ""),
-                    r"\xot": ('<seg editions="ot">', '</seg>'),
-                    r"\xnt": ('<seg editions="nt">', '</seg>'),
-                    r"\xdc": ('<seg editions="dc">', '</seg>'),
-                    r"\xo": ('<reference type="annotateRef">',
-                             '</reference>'),
-                    r"\xk": ("<catchWord>", "</catchWord>"),
-                    r"\xq": ("<catchWord>", "</catchWord>"),
-                    r"\xt": ("<reference>", "</reference>")
-                }[fnmatch.groups()[0]]
-                txt = fnmatch.groups()[1]
-                return "".join([tag[0], txt, tag[1]])
-            notetext = NOTEFIXRE.sub(notefixsub, notetext, 0)
-            for i in [r"\fm*", r"\fdc*", r"\fr*", r"\fk*", r"\fq*", r"\fqa*",
-                      r"\fl*", r"\fv*", r"\ft*", r"\xo*", r"\xk*", r"\xq*",
-                      r"\xt*", r"\xot*", r"\xnt*", r"\xdc*"]:
-                if i in notetext:
-                    notetext = notetext.replace(i, "")
-            return notetext
-
         def simplerepl(match):
             ''' simple regex replacement helper function '''
-            tag = {
-                r"\f": ('<note placement="foot">', '</note>'),
-                r"\fe": ('<note placement="end">', '</note>'),
-                r"\x": ('<note type="crossReference">', '</note>'),
-                r"\ef": ('<note placement="foot">', '</note>'),
-                r"\ex": ('<note type="crossReference">', '</note>')
-            }[match.group("tag")]
-            notetext = match.group("osis").replace("\n", " ")
+            tag = NOTETAGS[match.group("tag")]
+            notetext = match.group("osis").replace("\n", " ") # can \n ever happen here?
             if "<transChange" in notetext:
-                notetext = notetext.replace('<transChange type="added">',
-                                            '<seg><transChange type="added">')
+                notetext = re.sub('<transChange\b[^>]*>', r'<seg>\0', notetext)
                 notetext = notetext.replace('</transChange>',
                                             '</transChange></seg>')
             return "{}{}{}".format(tag[0], notetext, tag[1])
-        text = NOTERE.sub(simplerepl, text, 0)
+        aline = NOTERE.sub(simplerepl, aline, 0)
+        
+        def charstyles(aline):
+            '''
+            additional footnote and cross reference tag processing
+            '''
+            
+            global tagstack
+            tagstack = []
+            
+            def charstylesub(fnmatch):
+                ''' simple regex replacement helper function '''
+                
+                global tagstack
+                
+                rep = ""
+                # if were at note's end, close all open tags
+                if fnmatch.group(0) == "</note":
+                  rep = "".join(NOTEMARKTAGS[t][1] for t in reversed(tagstack))
+                  tagstack = []
+                  return rep + fnmatch.group(0)
+                
+                # do we end all previous tag(s)...
+                if fnmatch.group("nesting") != "+":
+                    rep = "".join(NOTEMARKTAGS[t][1] for t in reversed(tagstack))
+                    tagstack = []
+                
+                # or should we end only up to a particular tag
+                elif fnmatch.group("end") == "*":
+                    reopenTags = ""
+                    for i in reversed(range(len(tagstack))):
+                        rep += NOTEMARKTAGS[tagstack[i]][1]
+                        if tagstack[i] == "\\" + fnmatch.group("tag"):
+                            del(tagstack[i])
+                            break
+                        else:
+                            reopenTags += NOTEMARKTAGS[tagstack[i]][0]
+                    rep += reopenTags
+                    
+                # do we start a new tag...
+                if fnmatch.group("end") != "*":
+                  newTag = "\\" + fnmatch.group("tag")
+                  rep += NOTEMARKTAGS[newTag][0]
+                  tagstack.append(newTag)
 
-        # handle fp tags
-        if r'\fp ' in text:
-            textopen = text.partition(">")
-            text = '{}><div type="paragraph">{}'.format(textopen[0],
-                                                        textopen[2])
-            textclose = text.rpartition("<")
-            text = '{}</div>{}'.format(textclose[0], textclose[2])
-            text = text.replace(r'\fp ', r'</div><div type="paragraph">')
+                return rep
+                
+            aline = NOTEMARKRE.sub(charstylesub, aline, 0)
+            return aline
 
         # process additional footnote tags if present
-        if r"\f" in text or r"\x" in text:
-            text = notefix(text)
+        if r"\f" in aline or r"\x" in aline:
+            aline = charstyles(aline)
+            
+        # handle fp tags
+        if r'\fp ' in aline:
+            textopen = aline.partition(">")
+            aline = '{}><div type="paragraph">{}'.format(textopen[0],
+                                                        textopen[2])
+            textclose = aline.rpartition("<")
+            aline = '{}</div>{}'.format(textclose[0], textclose[2])
+            aline = aline.replace(r'\fp ', r'</div><div type="paragraph">')
 
         # study bible index categories
-        if r'\cat ' in text:
-            text = text.replace(r'\cat ', r'<index index="category" level1="')
-            text = text.replace(r'\cat*', r'" />')
+        if r'\cat ' in aline:
+            aline = re.sub(r'\\cat (.*?)\\cat\*', r'\1<index index="category" level1="\1" />', aline)
 
         # study bible sidebars.
-        if text.startswith(r'\esbe'):
-            text = r'</div>{}'.format(text.replace(r'\esbe', ''))
-        if text.startswith(r'\esb'):
-            text = r'<div type="x-sidebar">{}'.format(
-                text.replace(r'\esb', ''))
+        if aline.startswith(r'\esbe'):
+            aline = r'</div>{}'.format(aline.replace(r'\esbe', ''))
+        if aline.startswith(r'\esb'):
+            aline = r'<div type="x-sidebar">{}'.format(
+                aline.replace(r'\esb', ''))
 
-        # return our processed text
-        return text
+        # return our processed aline
+        return aline
 
     def specialfeatures(text):
         '''
@@ -1283,16 +1238,9 @@ def convert_to_osis(text, bookid="TEST"):
 
         def simplerepl(match):
             ''' simple regex replacement helper function '''
-            tag = {
-                # special features
-                r"\ndx": ("", '<index="Index" level1="(?P<osis>)"> '),
-                r"\pro": ('<milestone type="x-usfm-pro" n="', '" /> '),
-                r"\w": ("", '<index index="Glossary" />'),
-                r"\wg": ("", '<index index="Greek" />'),
-                r"\wh": ("", '<index index="Hebrew" />')
-            }[match.group("tag")]
+            tag = SPECIALFEATURETAGS[match.group("tag")]
             return "{}{}{}".format(tag[0], match.group("osis"), tag[1])
-        text = SPECIALFEATURESRE.sub(simplerepl, text, 0)
+        text = SPECIALFEATURERE.sub(simplerepl, text, 0)
 
         # \fig DESC|FILE|SIZE|LOC|COPY|CAP|REF\fig*
         if r'\fig' in text:
