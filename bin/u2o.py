@@ -18,7 +18,7 @@ Notes:
      it works fine for all of the usfm bibles that I have access to at this
      time.
 
-   * ... some \va tags may not be handled properly by this script.
+   * ... some \va and \vp tags may not be handled properly by this script.
 
 Alternative Book Ordering:
     To have the books output in an order different from the built in canonical
@@ -53,6 +53,11 @@ This script is public domain. You may do whatever you want with it.
 
 
 Changes:
+    version 0.4.7   --  2015.08.10  -- added handling of restore tag.
+    version 0.4.6   --  2015.08.07  -- fixed chapter marker placement problem
+                                       and fixed other miscellaneous bugs.
+    version 0.4.5   --  2015.08.06  -- added pretty printing of osis xml if
+                                       validating xml with lxml.
     version 0.4.4   --  2015.08.05  -- added reporting of unhandled usfm tags
                                        and fixed verbose message bug.
     version 0.4.3   --  2015.08.04  -- bug fix for \iot and validation
@@ -100,8 +105,8 @@ except ImportError:
 META = {
     "USFM": "2.4",         # Targeted USFM version
     "OSIS": "2.1.1",       # Targeted OSIS version
-    "VERSION": "0.4.4",    # THIS SCRIPT version
-    "DATE": "2015-08-05"   # THIS SCRIPT revision date
+    "VERSION": "0.4.8",    # THIS SCRIPT version
+    "DATE": "2015-08-11"   # THIS SCRIPT revision date
 }
 
 # -------------------------------------------------------------------------- #
@@ -211,6 +216,7 @@ IDTAGS = {
     r'\toc1': ('<milestone type="x-usfm-toc1" n="', '" />'),
     r'\toc2': ('<milestone type="x-usfm-toc2" n="', '" />'),
     r'\toc3': ('<milestone type="x-usfm-toc3" n="', '" />'),
+    r'\restore': ('<!-- restore - ', ' -->'),
     # the osis 2.1.1 user manual says the value of h h1 h2 and
     # h3 tags should be in the short attribute of a title.
     r'\h': ('<title type="runningHead" short="', '" />'),
@@ -534,6 +540,7 @@ VPRE = re.compile(
         \\(?:vp)
         \s+
         (?P<num>\S+)
+        \s*
         \\vp\*
         \s*
     ''', re.U + re.VERBOSE)
@@ -550,6 +557,7 @@ VARE = re.compile(
         \\(?:va)
         \s+
         (?P<num>\S+)
+        \s*
         \\va\*
         \s*
     ''', re.U + re.VERBOSE)
@@ -818,7 +826,8 @@ def convert_to_osis(text, bookid="TEST"):
         '''
         process identification tags
 
-        id, ide, sts, rem, h, h1, h2, h3, toc1, toc2, toc3
+        id, ide, sts, rem, h, h1, h2, h3, toc1, toc2, toc3,
+        restore
         '''
 
         # the osis 2.1.1 user manual says the value of id, ide, and
@@ -1137,6 +1146,9 @@ def convert_to_osis(text, bookid="TEST"):
             tag = SPECIALTEXTTAGS[match.group("tag")]
             return "{}{}{}".format(tag[0], match.group("osis"), tag[1])
         text = SPECIALTEXTRE.sub(simplerepl, text, 0)
+        # Process again if additional nested tags are present.
+        if r"\+" in text:
+            text = SPECIALTEXTRE.sub(simplerepl, text, 0)
 
         return text
 
@@ -1452,6 +1464,13 @@ def convert_to_osis(text, bookid="TEST"):
         for i in [_ for _ in range(len(lines)) if
                   lines[_].startswith("<verse eID")]:
             try:
+                if lines[i - 1] == "<p>" and lines[i-2] == "</lg>":
+                    lines.insert(i - 2, lines.pop(i))
+            except IndexError:
+                pass
+        for i in [_ for _ in range(len(lines)) if
+                  lines[_].startswith("<verse eID")]:
+            try:
                 if lines[i - 1].endswith("</item>"):
                     lines[i - 1] = "{}{}</item>".format(
                         lines[i - 1][:-7], lines[i])
@@ -1657,17 +1676,22 @@ def processfiles(args):
     # apply NFC normalization to text
     osisdoc = codecs.encode(unicodedata.normalize("NFC", osisdoc), "utf-8")
 
-    # validate our osis doc if requested.
+    # validate and "pretty print" our osis doc if requested.
     if not args.x:
         if HAVELXML:
             print("Validating osis xml... ")
             osisschema = codecs.decode(
-                codecs.decode(codecs.decode(SCHEMA, "base64"), "bz2"), "utf8")
+                codecs.decode(codecs.decode(SCHEMA, "base64"), "bz2"), "utf-8")
             try:
                 vparser = et.XMLParser(
-                    schema=et.XMLSchema(et.XML(osisschema)))
-                _ = et.fromstring(osisdoc, vparser)
+                    schema=et.XMLSchema(et.XML(osisschema)),
+                    remove_blank_text=True)
+                # using a test string here allows for output to still be
+                # generated even when validation fails.
+                testosis = SQUEEZE.sub(" ", osisdoc.decode("utf-8"))
+                _ = et.fromstring(testosis.encode("utf-8"), vparser)
                 print('Validation passed!')
+                osisdoc = et.tostring(_, pretty_print=True, encoding="utf-8")
             except et.XMLSyntaxError as err:
                 print('Validation failed: {}'.format(str(err)))
         else:
@@ -1675,7 +1699,7 @@ def processfiles(args):
 
     # find unhandled usfm tags that are leftover after processing
     usfmtagset = set()
-    usfmtagset.update(USFMRE.findall(osisdoc.decode("utf8")))
+    usfmtagset.update(USFMRE.findall(osisdoc.decode("utf-8")))
     if len(usfmtagset) > 0:
         print("Unhandled USFM Tags: {}".format(", ".join(sorted(usfmtagset))))
 
@@ -1732,7 +1756,7 @@ def main():
                         help="verbose output",
                         action="store_true")
     parser.add_argument("-x",
-                        help="disable OSIS validation",
+                        help="disable OSIS validation and reformatting",
                         action="store_true")
     parser.add_argument("file",
                         help="file or files to process (wildcards allowed)",
