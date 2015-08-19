@@ -1,20 +1,72 @@
-u2o.py vs. usfm2osis.py notes:
+u2o.py 0.4.10 validation errors and bugs when using TKL text
 
-\qa (acrostic) has major bug which moves punctation!
+
+8/19
+------------------------------------------------------------------------
+Missing end quotes and failed regex replacement in FEATURETAGS leads to:
+IN: etjek \w Mesih\w* Patyşanyň
+OUT: etjek Mesih<index index="Glossary" level1="(?P<osis>) /> Patyşanyň
+
+
+8/19
+------------------------------------------------------------------------
+Given the following USFM from TKL Prov 2:1-2:
+
+\cl 2-nji bap
+\c 2
+\q1
+\v 1 Oglum, meniň sözümi kabul edip,
+\q2 buýrugymy kalbyňda saklasaň,
+\b
+\q1
+\v 2 danalyga gulak asyp,
+\q2 düşünjä ýüregiňi berseň,
+\b
+\q1
+
+u2o.py renders this as:
+
+<!-- cl --><title type="x-chapterLabel">2-nji bap
+<chapter osisID="Prov.2</title>" sID="Prov.2</title>" n="2</title>" />
+<lg>
+<l level="1">
+<verse osisID="Prov.2</title>.1" sID="Prov.2</title>.1" n="1" />Oglum, meniň sözümi kabul edip, </l>
+<l level="2">buýrugymy kalbyňda saklasaň,  </l><lb type="x-p" />
+<l level="1">
+<verse eID="Prov.2</title>.1" />
+<verse osisID="Prov.2</title>.2" sID="Prov.2</title>.2" n="2" />danalyga gulak asyp, </l>
+<l level="2">düşünjä ýüregiňi berseň,  </l><lb type="x-p" />
+<l level="1">
+
+usfm2osis.py renders this as:
+
+<chapter osisID="Prov.2" sID="Prov.2"/>
+<verse osisID="Prov.2.1" sID="Prov.2.1"/><title type="x-chapterLabel">2-nji bap</title><lg>
+<l level="1" subType="x-to-next-level">Oglum, meniň sözümi kabul edip,</l>
+<l level="2">buýrugymy kalbyňda saklasaň,</l></lg><lb/><verse eID="Prov.2.1"/>
+<verse osisID="Prov.2.2" sID="Prov.2.2"/><lg>
+<l level="1" subType="x-to-next-level">danalyga gulak asyp,</l>
+<l level="2">düşünjä ýüregiňi berseň,</l></lg><lb/><verse eID="Prov.2.2"/>
+
+
+8/19
+------------------------------------------------------------------------
+Is this a bug?: The following tags are in TTAGS or PTAGS but they are 
+not in PARTAGS. If this is a bug, this could be prevented from
+reoccuring by making PARTAGS a sum of the other lists somehow?
+\is4
+\ms4
+\pi4
+\imte4
+\mte3
+\is3
+\imte3
+\qm4
+\mte4
+
+
+8/19
+------------------------------------------------------------------------
+These could be fixed already but would need to be rechecked after the above fixes:
+\qa (acrostic) has bug which moves punctation
 Mishandles \q1 (blank <line>) before new verse
-Needs to move pre-verse titles, references, etc into verse
-Canonical titles are not handled correctly (see above about pre-verse titles)
-Some verses are not well formed in ISA, PRO, and PSA (found by osis2mod, but validates)
-\cl doesn't work right (TKL)
-Uses u"" strings which are not allowed in Python3
-Bug on line 494: r"\ie\n"
-\w glossary\w* handled as index (incorrect and does not validate either)
-Attribute type="psalm" should be reserved only for Psalms
-
-Speed:
-TKL with usfm2osis.py: 83s
-TKL with u2o.py: < 4s
-TKL with u2o.py (orig): < 2s
-
-
-
