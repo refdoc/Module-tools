@@ -1,28 +1,14 @@
-u2o.py 0.5 validation errors and issues when using TKL text
+u2o.py validation errors and issues when using TKL text
+u2o.py 0.5, commit 9e2272629a4f83485476cb798eacfd65042bfd9b
 
 
-8/26
+8/27
 ------------------------------------------------------------------------
-Failed regex replacement in FEATURETAGS leads to:
-IN: etjek \w Mesih\w* Patyşanyň
-OUT: etjek Mesih<index index="Glossary" level1="(?P<osis>)" /> Patyşanyň
-
-
-8/26
-------------------------------------------------------------------------
-Since all USFM comments are put in the OSIS header, is there some way
-to include the source USFM file name within each <description> element?
-Otherwise, the description elements aren't helpful anymore, because we 
-don't know which book (USFM file) each description element pertains to.
-
-
-8/26
-------------------------------------------------------------------------
-At issue is the post processing, intended to slide <chapter>, <verse>,
-<verse/>, and <chapter/> tags to their final OSIS positions. As it is,
-the OSIS validates, but it cannot be rendered correctly, and isn't 
-logically correct. An example is the final placement of these tags in
-the following markup:
+At issue is the post processing, which is still under development. It is
+intended to slide <chapter>, <verse>, <verse/>, and <chapter/> tags to 
+their final OSIS positions. As it currently is, the OSIS validates, but  
+it cannot be rendered correctly, and isn't logically correct. An example 
+is the final placement of these tags in the following markup:
 
 Given this USFM from TKL Prov 2:1-2:
 
@@ -40,23 +26,24 @@ Given this USFM from TKL Prov 2:1-2:
 
 u2o.py renders it as:
 
-<!-- cl --><title type="x-chapterLabel" short="2-nji bap" />
-<verse eID="Prov.1.33" />
-<chapter eID="Prov.1" />
-<chapter osisID="Prov.2" sID="Prov.2" n="2" /> <lg>
-<l level="1">
-<verse osisID="Prov.2.1" sID="Prov.2.1" n="1" />Oglum, meniň sözümi kabul edip, </l>
-<l level="2">buýrugymy kalbyňda saklasaň,  </l><lb type="x-p" />
-<l level="1">
-<verse eID="Prov.2.1" />
-<verse osisID="Prov.2.2" sID="Prov.2.2" n="2" />danalyga gulak asyp, </l>
-<l level="2">düşünjä ýüregiňi berseň,  </l><lb type="x-p" />
-<l level="1">
-<verse eID="Prov.2.2" />
+<!-- cl -->
+<title type="x-chapterLabel" short="2-nji bap"/>
+<verse eID="Prov.1.33"/>
+<chapter eID="Prov.1"/>
+<chapter osisID="Prov.2" sID="Prov.2" n="2"/>
+<lg>
+  <l level="1"><verse osisID="Prov.2.1" sID="Prov.2.1" n="1"/>Oglum, meniň sözümi kabul edip, </l>
+  <l level="2">buýrugymy kalbyňda saklasaň, </l>
+  <lb type="x-p"/>
+  <l level="1"><verse eID="Prov.2.1"/><verse osisID="Prov.2.2" sID="Prov.2.2" n="2"/>danalyga gulak asyp, </l>
+  <l level="2">düşünjä ýüregiňi berseň, </l>
+  <lb type="x-p"/>
+  <l level="1"><verse eID="Prov.2.2"/>
 
 usfm2osis.py renders it as:
 
-<verse eID="Prov.1.33" />
+<verse eID="Prov.1.33"/>
+<chapter eID="Prov.1"/>
 <chapter osisID="Prov.2" sID="Prov.2"/>
 <verse osisID="Prov.2.1" sID="Prov.2.1"/><title type="x-chapterLabel">2-nji bap</title><lg>
 <l level="1" subType="x-to-next-level">Oglum, meniň sözümi kabul edip,</l>
@@ -64,5 +51,4 @@ usfm2osis.py renders it as:
 <verse osisID="Prov.2.2" sID="Prov.2.2"/><lg>
 <l level="1" subType="x-to-next-level">danalyga gulak asyp,</l>
 <l level="2">düşünjä ýüregiňi berseň,</l></lg><lb/><verse eID="Prov.2.2"/>
-
 
