@@ -1,8 +1,8 @@
-u2o.py validation errors and issues when using TKL text
-u2o.py 0.5, commit 9e2272629a4f83485476cb798eacfd65042bfd9b
+u2o.py issues when using TKL text
+u2o.py 0.5, commit 753f4d147a5a65103f54cf428ee7e7530be224e2
 
 
-8/27
+Sept 15
 ------------------------------------------------------------------------
 At issue is the post processing, which is still under development. It is
 intended to slide <chapter>, <verse>, <verse/>, and <chapter/> tags to 
@@ -33,12 +33,11 @@ u2o.py renders it as:
 <chapter osisID="Prov.2" sID="Prov.2" n="2"/>
 <lg>
   <l level="1"><verse osisID="Prov.2.1" sID="Prov.2.1" n="1"/>Oglum, meniň sözümi kabul edip, </l>
-  <l level="2">buýrugymy kalbyňda saklasaň, </l>
+  <l level="2">buýrugymy kalbyňda saklasaň, <verse eID="Prov.2.1"/></l>
   <lb type="x-p"/>
-  <l level="1"><verse eID="Prov.2.1"/><verse osisID="Prov.2.2" sID="Prov.2.2" n="2"/>danalyga gulak asyp, </l>
-  <l level="2">düşünjä ýüregiňi berseň, </l>
+  <l level="1"><verse osisID="Prov.2.2" sID="Prov.2.2" n="2"/>danalyga gulak asyp, </l>
+  <l level="2">düşünjä ýüregiňi berseň, <verse eID="Prov.2.2"/></l>
   <lb type="x-p"/>
-  <l level="1"><verse eID="Prov.2.2"/>
 
 usfm2osis.py renders it as:
 
