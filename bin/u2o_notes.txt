@@ -6,8 +6,23 @@ Sept 15
 ------------------------------------------------------------------------
 At issue is the post processing, which is still under development. It is
 intended to slide <chapter>, <verse>, <verse/>, and <chapter/> tags to 
-their final OSIS positions. As it currently is, the OSIS validates, but  
-it cannot be rendered correctly, and isn't logically correct. An example 
+their final OSIS positions.
+
+Verse and chapter tags should be slid up or down until:
+
+1) all chapter related text is within the chapter's start and end tags
+and all verse related text is within the related verse's start and end
+tags. As mentioned above, this includes all title and section tags,
+which should also be within the related verse's tags, unless they relate
+to the introduction text rather than to the verse text.
+
+2) there are no "dangling" start tags at the end of a verse, and no
+dangling end tags at the start of a verse. By "dangling" meaning tags
+which are outside the verse that their own text nodes are in. In other
+words a <l> tag is dangling if it is at the end of verse 3, but its text
+is in verse 4.
+
+An example 
 is the final placement of these tags in the following markup:
 
 Given this USFM from TKL Prov 2:1-2:
