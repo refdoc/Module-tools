@@ -1283,19 +1283,19 @@ def convertToOsis(sFile):
         # assorted re-orderings
 
         # delete Unicode non-characters (except section divs for now)
-        for c in '\uFDD1\uFDD2\uFDD3\uFDD4\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
+        for c in '\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
             osis = osis.replace(c, '')
 
         # </div-book></div-section> --> </div-section></div-book>
-        sectionDivChar = '[\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
+        sectionDivChar = '[\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
         osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
         
         # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-        startTagsVerse = '((('+sectionDivChar+'<div\s[^>]*>\s*)?<title(?!\scanonical="true")(\s[^>]*)?>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
-        osis = re.sub(startTagsVerse+'(<verse eID=[^>]*>)', r'\7\1', osis)
-        osis = re.sub(startTagsVerse+'(<chapter eID=[^>]*/>)', r'\7\1', osis)
-        osis = re.sub(startTagsVerse+'(<chapter [^>]*sID=[^>]*/>)', r'\7\1', osis)
-        osis = re.sub(startTagsVerse+'(<verse osisID=[^>]*>)', r'\7\1', osis)
+        startTagsVerse = '(('+sectionDivChar+'<div\s[^>]*><title>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
+        osis = re.sub(startTagsVerse+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
+        osis = re.sub(startTagsVerse+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
+        osis = re.sub(startTagsVerse+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
+        osis = re.sub(startTagsVerse+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
         
         # </verse><verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse><verse>
         endTagsVerse = '((</div>'+sectionDivChar+'|</([pl]|lg)(\s[^>]*)?>|\s)+)';
