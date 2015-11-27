@@ -74,10 +74,4 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- until osis2mod can pass <p> type attributes, this work-around acheives x-noindent paragraphs !-->
-  <xsl:template match="osis:p[@type='x-noindent' or @type='x-noindent-quote']">
-    <xsl:apply-templates/>
-    <xsl:element name="lb" namespace="http://www.bibletechnologies.net/2003/OSIS/namespace" />
-  </xsl:template>
-
 </xsl:stylesheet>
