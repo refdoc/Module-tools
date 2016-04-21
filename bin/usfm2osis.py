@@ -713,7 +713,7 @@ def convertToOsis(sFile):
         # \psi # deprecated
         # \p# # deprecated
         pType = {'pc':'x-center', 'pr':'x-right', 'm':'x-noindent', 'pmo':'x-embedded-opening', 'pm':'x-embedded', 'pmc':'x-embedded-closing', 'pmr':'x-right', 'pi':'x-indented-1', 'pi1':'x-indented-1', 'pi2':'x-indented-2', 'pi3':'x-indented-3', 'pi4':'x-indented-4', 'pi5':'x-indented-5', 'mi':'x-noindent-indented', 'nb':'x-nobreak', 'phi':'x-indented-hanging', 'ps':'x-nobreakNext', 'psi':'x-nobreakNext-indented', 'p1':'x-level-1', 'p2':'x-level-2', 'p3':'x-level-3', 'p4':'x-level-4', 'p5':'x-level-5'}
-        osis = re.sub(r'\\('+paragraphregex+r')\s+(.*?)(?=(\\(i?m|i?p|lit|cls|tr|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|'+paragraphregex+r')\b|<chapter eID|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\('+paragraphregex+r')\s+(.*?)(?=(\\(periph|i?m|i?p|lit|cls|tr|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|'+paragraphregex+r')\b|<chapter eID|\uFDD4|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \cls_text...
         osis = re.sub(r'\\m\s+(.+?)(?=(\\(i?m|i?p|lit|cls|tr)\b|<chapter eID|<(/?div|p|closer)\b))', lambda m: '\uFDD3<closer>' + m.group(1) + '\uFDD3</closer>\n', osis, flags=re.DOTALL)
