@@ -850,31 +850,37 @@ def convertToOsis(sFile):
 
         # \fq_
         note = re.sub(r'\\fq\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<catchWord>\1</catchWord>', note)
+        note = re.sub(r'\\\+fq\b\s(.+?)(?=(\\f|\\\+fq\*|'+'\uFDDF))', r'<catchWord>\1</catchWord>', note)
 
         # \fqa_
         note = re.sub(r'\\fqa\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<rdg type="alternate">\1</rdg>', note)
+        note = re.sub(r'\\\+fqa\b\s(.+?)(?=(\\f|\\\+fqa\*|'+'\uFDDF))', r'<rdg type="alternate">\1</rdg>', note)
 
         # \fr_
         note = re.sub(r'\\fr\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<reference type="annotateRef">\1</reference>', note)
+        note = re.sub(r'\\\+fr\b\s(.+?)(?=(\\f|\\\+fr\*|'+'\uFDDF))', r'<reference type="annotateRef">\1</reference>', note)
 
         # \fk_
         note = re.sub(r'\\fk\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<catchWord>\1</catchWord>', note)
+        note = re.sub(r'\\\+fk\b\s(.+?)(?=(\\f|\\\+fk\*|'+'\uFDDF))', r'<catchWord>\1</catchWord>', note)
 
         # \fl_
         note = re.sub(r'\\fl\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<label>\1</label>', note)
+        note = re.sub(r'\\\+fl\b\s(.+?)(?=(\\f|\\\+fl\*|'+'\uFDDF))', r'<label>\1</label>', note)
+
+        # \fv_
+        note = re.sub(r'\\fv\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<hi type="super">\1</hi>', note)
+        note = re.sub(r'\\\+fv\b\s(.+?)(?=(\\f|\\\+fv\*|'+'\uFDDF))', r'<hi type="super">\1</hi>', note)
 
         # \fp_
         note = re.sub(r'\\fp\b\s(.+?)(?=(\\fp|\uFDDF</note>|$))', r'<p>\1</p>', note)
         note = re.sub(r'(<note\b[^>]*?>)(.*?)<p>', r'\1<p>\2</p><p>', note)
-
-        # \fv_
-        note = re.sub(r'\\fv\b\s(.+?)(?=(\\f|'+'\uFDDF))', '\uFDDF'+r'<hi type="super">\1</hi>', note)
         
         # \ft_ handle this lastly, so it may properly end any previous footnote tag
         note = re.sub(r'\\ft\s', '', note)
 
         # \fq*,\fqa*,\ft*,\fr*,\fk*,\fl*,\fp*,\fv*
-        note = re.sub(r'\\f(q|qa|t|r|k|l|p|v)\*', '', note)
+        note = re.sub(r'\\\+?f(q|qa|t|r|k|l|p|v)\*', '', note)
 
         note = note.replace('\uFDDF', '')
         return note
