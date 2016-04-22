@@ -1619,7 +1619,7 @@ if __name__ == "__main__":
 
         unhandledTags = set()
         for doc in usfmDocList:
-            unhandledTags |= set(re.findall(r'(\\[^\s]*)', osisSegment[doc]))
+            unhandledTags |= set(re.findall(r'(\\[^\s\*]*)', osisSegment[doc]))
             osisDoc += osisSegment[doc]
 
         osisDoc += '</osisText>\n</osis>\n'
@@ -1646,7 +1646,9 @@ if __name__ == "__main__":
 
         if unhandledTags:
             print('')
-            print(('Unhandled USFM tags: ' + ', '.join(sorted(unhandledTags)) + ' (' + str(len(unhandledTags)) + ' total)'))
+            enc = 'utf-8'
+            if encoding: enc = encoding
+            print(('Unhandled USFM tags: ' + ', '.join(sorted(unhandledTags)) + ' (' + str(len(unhandledTags)) + ' total)').encode(enc))
             if not relaxedConformance:
                 print('Consider using the -r option for relaxed markup processing')
 
