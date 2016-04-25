@@ -692,8 +692,10 @@ def convertToOsis(sFile):
         # \v_#
         osis = re.sub(r'\\v\s+([\d\-]+)[\s\u00A0]*(.+?)(?=(\\v\s+|</div type="book"|<chapter eID))', lambda m: '\uFDD2<verse osisID="$BOOK$.$CHAP$.' + m.group(1) + '" sID="$BOOK$.$CHAP$.' + m.group(1) + '"/>' + m.group(2) + '<verse eID="$BOOK$.$CHAP$.' + m.group(1) + '"/>\uFDD2\n', osis, flags=re.DOTALL)
 
-        # \vp_#\vp*
         # \va_#\va*
+        osis = re.sub(r'\\va\s(\d+)\\va\*', r'<hi type="italic" subType="x-alternate"><hi type="super">(\1)</hi></hi>', osis)
+        
+        # \vp_#\vp*
         def replaceVerseNumber(matchObject):
             """Regex helper function to replace verse numbers from \v_# with values that appeared in \vp_#\vp* and \va_#\va*, returing the verse text as a string.
 
