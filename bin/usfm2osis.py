@@ -1293,15 +1293,15 @@ def convertToOsis(sFile):
         # assorted re-orderings
 
         # delete Unicode non-characters (except section divs for now)
-        for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
+        for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
             osis = osis.replace(c, '')
 
         # </div-book></div-section> --> </div-section></div-book>
-        sectionDivChar = '[\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
+        sectionDivChar = '[\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
         osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
         
         # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-        startTagsVerse = '(('+sectionDivChar+'<div\s[^>]*><title>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
+        startTagsVerse = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
         osis = re.sub(startTagsVerse+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
         osis = re.sub(startTagsVerse+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
         osis = re.sub(startTagsVerse+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
@@ -1317,6 +1317,10 @@ def convertToOsis(sFile):
         # delete rest of Unicode non-characters
         for c in '\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE':
             osis = osis.replace(c, '')
+
+        # Because SWORD's osis2mod complains about and effectively removes majorSection divs 
+        # that begin within a verse, adjust for this special case...
+        osis = re.sub('(<verse osisID=[^>]*>)([\s\n]*<div type="majorSection"[^>]*>)', r'\2\1', osis)
             
         # </l>NOTE --> NOTE</l>
         osis = re.sub('(</l>)(<note .+?</note>)', r'\2\1', osis)
