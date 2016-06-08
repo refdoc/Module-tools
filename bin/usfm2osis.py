@@ -536,7 +536,7 @@ def convertToOsis(sFile):
         # \imq_text...
         # \ipr_text...
         pType = {'ipi':'x-indented', 'im':'x-noindent', 'imi':'x-noindent-indented', 'ipq':'x-quote', 'imq':'x-noindent-quote', 'ipr':'x-right'}
-        osis = re.sub(r'\\(ipi|im|ipq|imq|ipr)\s+(.*?)(?=(\\(i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li|iex?|s|c)\b|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '" subType="x-introduction">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\(ipi|im|imi|ipq|imq|ipr)\s+(.*?)(?=(\\(i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li|iex?|s|c)\b|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '" subType="x-introduction">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \ib
         osis = re.sub(r'\\ib\b\s?', '\uFDE7<lb type="x-p"/>', osis)
