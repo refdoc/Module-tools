@@ -431,7 +431,7 @@ def convertToOsis(sFile):
         """
 
         # \id_<CODE>_(Name of file, Book name, Language, Last edited, Date etc.)
-        osis = re.sub(r'\\id\s+([A-Z0-9]{3})\b\s*([^\\'+'\n]*?)\n'+r'(.*)(?=\\id|$)', lambda m: '\uFDD0<div type="book" osisID="' + bookDict[m.group(1)] + '">\n' + (('<!-- id comment - ' + m.group(2) + ' -->\n') if m.group(2) else '') + m.group(3) + '</div type="book">\uFDD0\n' , osis, flags=re.DOTALL)
+        osis = re.sub(r'\\id\s+([A-Z0-9]{3})\b\s*([^\\'+'\n]*?)\n'+r'(.*)(?=\\id|$)', lambda m: '\uFDD0<div type="book" osisID="' + bookDict[m.group(1)] + '"' + (' canonical="true"' if bookDict[m.group(1)] not in specialBooks else '') + '>\n' + (('<!-- id comment - ' + m.group(2) + ' -->\n') if m.group(2) else '') + m.group(3) + '</div type="book">\uFDD0\n' , osis, flags=re.DOTALL)
 
         # \ide_<ENCODING>
         osis = re.sub(r'\\ide\b.*'+'\n', '', osis) # delete, since this was handled above
@@ -558,14 +558,14 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\io(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE1'+r'\2'+'\uFDE1</item>', osis, flags=re.DOTALL)
         osis = re.sub(r'\\iot\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="head">\uFDE1'+r'\1'+'\uFDE1</item type="head">', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
-        osis = re.sub('(<item [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE0]+</item>)', '\uFDD3<div type="outline"><list>'+r'\1'+'</list></div>\uFDD3', osis, flags=re.DOTALL)
+        osis = re.sub('(<item [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE0]+</item>)', '\uFDD3<div type="outline" subType="x-introduction"><list>'+r'\1'+'</list></div>\uFDD3', osis, flags=re.DOTALL)
         osis = re.sub('item type="head"', 'head', osis)
 
         # \ior_text...\ior*
         osis = re.sub(r'\\ior\b\s+(.+?)\\ior\*', r'<reference>\1</reference>', osis, flags=re.DOTALL)
 
         # \iex  # TODO: look for example; I have no idea what this would look like in context
-        osis = re.sub(r'\\iex\b\s*(.+?)'+'?=(\s*(\\c|</div type="book">\uFDD0))', r'<div type="bridge">\1</div>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\iex\b\s*(.+?)'+'?=(\s*(\\c|</div type="book">\uFDD0))', r'<div type="bridge" subType="x-introduction">\1</div>', osis, flags=re.DOTALL)
 
         # \iqt_text...\iqt*
         osis = re.sub(r'\\iqt\s+(.+?)\\iqt\*', r'<q subType="x-introduction">\1</q>', osis, flags=re.DOTALL)
