@@ -1301,18 +1301,20 @@ def convertToOsis(sFile):
         osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
         
         # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-        startTagsVerse = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
-        osis = re.sub(startTagsVerse+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
-        osis = re.sub(startTagsVerse+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
-        osis = re.sub(startTagsVerse+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
-        osis = re.sub(startTagsVerse+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
+        slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
+        osis = re.sub(slideTags+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
+        osis = re.sub(slideTags+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
+        osis = re.sub(slideTags+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
+        slideTags = '((<([pl]|lg)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+        osis = re.sub(slideTags+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
         
         # </verse><verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse><verse>
-        endTagsVerse = '((</div>'+sectionDivChar+'|</([pl]|lg)(\s[^>]*)?>|\s)+)';
-        osis = re.sub('(<verse osisID=[^>]*>)'+endTagsVerse, r'\2\1', osis)
-        osis = re.sub('(<chapter [^>]*sID=[^>]*/>)'+endTagsVerse, r'\2\1', osis)
-        osis = re.sub('(<chapter eID=[^>]*/>)'+endTagsVerse, r'\2\1', osis)
-        osis = re.sub('(<verse eID=[^>]*>)'+endTagsVerse, r'\2\1', osis)
+        slideTags = '((</div>'+sectionDivChar+'|</([pl]|lg)(\s[^>]*)?>|\s)+)'
+        osis = re.sub('(<verse osisID=[^>]*>)'+slideTags, r'\2\1', osis)
+        osis = re.sub('(<chapter [^>]*sID=[^>]*/>)'+slideTags, r'\2\1', osis)
+        osis = re.sub('(<chapter eID=[^>]*/>)'+slideTags, r'\2\1', osis)
+        slideTags = '((</([pl]|lg)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+        osis = re.sub('(<verse eID=[^>]*>)'+slideTags, r'\2\1', osis)
         
         # delete rest of Unicode non-characters
         for c in '\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE':
