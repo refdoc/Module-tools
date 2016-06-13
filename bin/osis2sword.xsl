@@ -49,6 +49,12 @@
   <xsl:template match="osis:reference[not(@osisRef)]" priority="1">
     <xsl:apply-templates/>
   </xsl:template>
+  
+  <!-- For the moment osis2mod.cpp is by default interpereting majorTitles as introductory material, so  this 
+  forces osis2mod.cpp to import majorSection titles as regular preverse titles, which is the more common need !-->
+  <xsl:template match="osis:div[@type='majorSection']/osis:title[not(@type)][1]">
+    <xsl:copy><xsl:attribute name="type">majorSection</xsl:attribute><xsl:apply-templates/></xsl:copy>
+  </xsl:template>
 
   <!-- usfm2osis.py follows the OSIS manual recommendation for selah as a line element which differs from the USFM recommendation for selah.
   According to USFM 2.35 spec, selah is: "A character style. This text is frequently right aligned, and rendered on the same line as the previous poetic text..." !-->
