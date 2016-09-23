@@ -735,7 +735,7 @@ def convertToOsis(sFile):
             paragraphregex += '|phi|ps|psi|p1|p2|p3|p4|p5'
 
         # \p(_text...)
-        osis = re.sub(r'\\p\s+(.*?)(?=(\\(i?m|i?p|lit|cls|tr|p|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|'+paragraphregex+r')\b|<chapter eID|\uFDD4|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p>\n' + m.group(1) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\p\s+(.*?)(?=(\\(i?m|i?p|lit|cls|tr|p|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|li\d?|ph\d?|'+paragraphregex+r')\b|<chapter eID|\uFDD4|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p>\n' + m.group(1) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \pc(_text...)
         # \pr(_text...)
@@ -752,7 +752,7 @@ def convertToOsis(sFile):
         # \psi # deprecated
         # \p# # deprecated
         pType = {'pc':'x-center', 'pr':'x-right', 'm':'x-noindent', 'pmo':'x-embedded-opening', 'pm':'x-embedded', 'pmc':'x-embedded-closing', 'pmr':'x-right', 'pi':'x-indented-1', 'pi1':'x-indented-1', 'pi2':'x-indented-2', 'pi3':'x-indented-3', 'pi4':'x-indented-4', 'pi5':'x-indented-5', 'mi':'x-noindent-indented', 'nb':'x-nobreak', 'phi':'x-indented-hanging', 'ps':'x-nobreakNext', 'psi':'x-nobreakNext-indented', 'p1':'x-level-1', 'p2':'x-level-2', 'p3':'x-level-3', 'p4':'x-level-4', 'p5':'x-level-5'}
-        osis = re.sub(r'\\('+paragraphregex+r')\s+(.*?)(?=(\\(i?m|i?p|lit|cls|tr|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|'+paragraphregex+r')\b|<chapter eID|\uFDD4|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\('+paragraphregex+r')\s+(.*?)(?=(\\(i?m|i?p|lit|cls|tr|q|q1|q2|q3|q4|qm|qm1|qm2|qm3|qm4|qr|qc|li\d?|ph\d?|'+paragraphregex+r')\b|<chapter eID|\uFDD4|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \cls_text...
         osis = re.sub(r'\\m\s+(.+?)(?=(\\(i?m|i?p|lit|cls|tr)\b|<chapter eID|<(/?div|p|closer)\b))', lambda m: '\uFDD3<closer>' + m.group(1) + '\uFDD3</closer>\n', osis, flags=re.DOTALL)
@@ -1301,19 +1301,19 @@ def convertToOsis(sFile):
         osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
         
         # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-        slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg)(\s[^>]*)?>|\s)+)';
+        slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)';
         osis = re.sub(slideTags+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
         osis = re.sub(slideTags+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
         osis = re.sub(slideTags+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
-        slideTags = '((<([pl]|lg)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+        slideTags = '((<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
         osis = re.sub(slideTags+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
         
         # </verse><verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse><verse>
-        slideTags = '((</div>'+sectionDivChar+'|</([pl]|lg)(\s[^>]*)?>|\s)+)'
+        slideTags = '((</div>'+sectionDivChar+'|</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)'
         osis = re.sub('(<verse osisID=[^>]*>)'+slideTags, r'\2\1', osis)
         osis = re.sub('(<chapter [^>]*sID=[^>]*/>)'+slideTags, r'\2\1', osis)
         osis = re.sub('(<chapter eID=[^>]*/>)'+slideTags, r'\2\1', osis)
-        slideTags = '((</([pl]|lg)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+        slideTags = '((</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
         osis = re.sub('(<verse eID=[^>]*>)'+slideTags, r'\2\1', osis)
         
         # delete rest of Unicode non-characters
@@ -1337,9 +1337,9 @@ def convertToOsis(sFile):
         osis = re.sub(' +((</[^>]+>)+) *', r'\1 ', osis)
         
         # normalize p, lg, l and other containers for prettier OSIS
-        osis = re.sub('\s*(</?(title|lg)>)\s*', r'\1', osis)
-        osis = re.sub('\s*(</(p|l)(?=[\s>])[^>]*>)\s*', r'\1', osis)
-        osis = re.sub('\s*(<(p|l)(?=[\s>])[^>]*>)\s*', '\n'+r'\1', osis)
+        osis = re.sub('\s*(</?(title|list|lg)>)\s*', r'\1', osis)
+        osis = re.sub('\s*(</(p|l|item)(?=[\s>])[^>]*>)\s*', r'\1', osis)
+        osis = re.sub('\s*(<(p|l|item)(?=[\s>])[^>]*>)\s*', '\n'+r'\1', osis)
         osis = re.sub('\s*(<verse osisID=[^>]*>)\s*', '\n'+r'\1', osis)
         osis = re.sub('\s*(<verse eID=[^>]*>)\s*', r'\1'+'\n', osis)
         osis = re.sub('\s*(<chapter[^>]*>)\s*', '\n'+r'\1'+'\n', osis)
