@@ -10,6 +10,15 @@
        <xsl:apply-templates select="node()|@*"/>
     </xsl:copy>
   </xsl:template>
+  
+  <!-- use two passes !-->
+  <xsl:template match="/">
+    <xsl:variable name="Pass1">
+      <xsl:apply-templates/>
+    </xsl:variable>
+
+    <xsl:apply-templates mode="Pass2" select="$Pass1"/>
+  </xsl:template>
 
   <!-- remove runningHead titles which should only appear on print-like editions !-->
   <xsl:template match="osis:title[@type='runningHead']"/>
@@ -50,6 +59,23 @@
     <xsl:apply-templates/>
   </xsl:template>
   
+  <!-- OSIS <list> and <item> are not milestonable and thus cause SWORD import warnings 
+  and improper rendering by SWORD front-ends any time a list contains multiple verses 
+  (which is usually the case). The only way to render these is to replace them with 
+  milestonable elements, so <lg> and <l> are the natural replacements !-->
+  <xsl:template match="osis:list[.//osis:verse]">
+    <xsl:element name="lg" namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">
+      <xsl:attribute name="subType">x-list</xsl:attribute>
+      <xsl:apply-templates select="node()|@*"/>
+    </xsl:element>
+  </xsl:template>
+  <xsl:template match="osis:list[.//osis:verse]//osis:item">
+    <xsl:element name="l" namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">
+      <xsl:attribute name="subType">x-item</xsl:attribute>
+      <xsl:apply-templates select="node()|@*"/>
+    </xsl:element>
+  </xsl:template>
+    
   <!-- For the moment osis2mod.cpp is by default interpereting majorTitles as introductory material, so  this 
   forces osis2mod.cpp to import majorSection titles as regular preverse titles, which is the more common need !-->
   <xsl:template match="osis:div[@type='majorSection']/osis:title[not(@type)][1]">
@@ -78,6 +104,40 @@
         <xsl:call-template name="identity"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <!-- A second pass is needed to handle all <l> tags, including 
+  those converted from <item> during the first pass !-->
+  <xsl:template match="node()|@*" mode="Pass2">
+    <xsl:copy>
+       <xsl:apply-templates mode="Pass2" select="node()|@*"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <!-- Due to the way <l> may be rendered by front-ends, <l> elements must not contain <verse> tags 
+  otherwise these would be broken into multiple lines. The fix is to remove all verse tags within 
+  <l> elements, and make the previous/following verse tags span the entire element. !-->
+  <xsl:template match="osis:verse[parent::osis:l]" mode="Pass2" priority="2"/>
+  <!-- Modify attribs of each verse that starts outside <l> but the following verse starts within <l> !-->
+  <xsl:template match="osis:verse[@sID][not(parent::osis:l)][following::osis:verse[@sID][1][parent::osis:l]]" mode="Pass2">
+    <xsl:variable name="groupend" select="./following::osis:verse[@sID][not(parent::osis:l)][1]" />
+    <xsl:copy>
+      <xsl:attribute name="osisID">
+        <xsl:value-of select="string-join((./@osisID, ./following::osis:verse[@sID][. &lt;&lt; $groupend]/@osisID), ' ')"/>
+      </xsl:attribute>
+      <xsl:attribute name="sID">
+        <xsl:value-of select="string-join((./@sID, ./following::osis:verse[@sID][. &lt;&lt; $groupend]/@sID), ' ')"/>
+      </xsl:attribute>
+    </xsl:copy>
+  </xsl:template>
+  <!-- Modify attribs of each verse that ends outside <l> but the preceding verse ends within <l> !-->
+  <xsl:template match="osis:verse[@eID][not(parent::osis:l)][preceding::osis:verse[@eID][1][parent::osis:l]]" mode="Pass2">
+    <xsl:variable name="groupend" select="./preceding::osis:verse[@eID][not(parent::osis:l)][1]" />
+    <xsl:copy>
+      <xsl:attribute name="eID">
+        <xsl:value-of select="string-join((./preceding::osis:verse[@eID][$groupend &lt;&lt; .]/@eID, ./@eID), ' ')"/>
+      </xsl:attribute>
+    </xsl:copy>
   </xsl:template>
 
 </xsl:stylesheet>
