@@ -11,11 +11,19 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- remove these tags, leaving their text !-->
+  <xsl:template match="osis:milestone|osis:foreign|osis:index|osis:name|osis:seg">
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <!-- remove runningHead titles which should only appear on print-like editions !-->
+  <xsl:template match="osis:title[@type='runningHead']"/>
+
   <!-- remove introduction elements that shouldn't appear in SWORD introductions !-->
   <xsl:template match="osis:milestone[@type='x-usfm-toc1']"/>
   <xsl:template match="osis:milestone[@type='x-usfm-toc2']"/>
   <xsl:template match="osis:milestone[@type='x-usfm-toc3']"/>
-
+  
   <xsl:template match="osis:lb[@type='x-optional']"/>
   
   <!-- remove comments !-->
@@ -31,6 +39,16 @@
     <xsl:copy><xsl:attribute name="level">2</xsl:attribute><xsl:apply-templates/></xsl:copy>
   </xsl:template>
 
+  <!-- scope title references should not appear as reference links !-->
+  <xsl:template match="osis:title[@type='scope']/osis:reference">
+    <xsl:apply-templates/>
+  </xsl:template>
+  
+  <!-- remove <reference> tags that lack osisRef attributes !-->
+  <xsl:template match="osis:reference[not(@osisRef)]" priority="1">
+    <xsl:apply-templates/>
+  </xsl:template>
+    
   <!-- usfm2osis.py follows the OSIS manual recommendation for selah as a line element which differs from the USFM recommendation for selah.
   According to USFM 2.35 spec, selah is: "A character style. This text is frequently right aligned, and rendered on the same line as the previous poetic text..." !-->
   <xsl:template match="osis:l">
@@ -54,10 +72,5 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
-  <!-- remove these tags, leaving their text !-->
-  <xsl:template match="osis:milestone|osis:foreign|osis:index|osis:name|osis:seg">
-    <xsl:apply-templates/>
-  </xsl:template>
-
+  
 </xsl:stylesheet>
