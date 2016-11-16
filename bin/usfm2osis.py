@@ -366,9 +366,16 @@ def convertToOsis(sFile):
         # lines should never end with whitespace (other than \n)
         osis = re.sub('\s+\n', '\n', osis)
         # replace with XML entities, as necessary
-        osis = osis.replace('&', '&amp;')
-        osis = osis.replace('<', '&lt;')
-        osis = osis.replace('>', '&gt;')
+        if not relaxedConformance:
+            osis = osis.replace('&', '&amp;')
+            osis = osis.replace('<', '&lt;')
+            osis = osis.replace('>', '&gt;')
+        # but in relaxedConformance, support escaping these with \
+        else:
+            osis = re.sub(r'(?<!\\)&', '&amp;', osis)
+            osis = re.sub(r'(?<!\\)<', '&lt;', osis)
+            osis = re.sub(r'(?<!\\)>', '&gt;', osis)
+            osis = re.sub(r'\\(?=[&<>])', '', osis)
 
         #osis = re.sub('\n'+r'(\\[^\s]+\b\*)', r' \1', osis)
 
