@@ -32,7 +32,7 @@
   <!-- Filter and change all element namespaces to teiosis -->
   <xsl:template name="teiosis">
     <xsl:choose>
-      <xsl:when test="comment()|self::osis:chapter|self::osis:title[@type='x-chapterLabel']|self::osis:seg[@type='keyword']"/><!-- Filter any unwanted elements here -->
+      <xsl:when test="self::comment()|self::osis:chapter|self::osis:title[@type='x-chapterLabel']|self::osis:seg[@type='keyword']"/><!-- Filter any unwanted elements here -->
       <xsl:when test="self::text()"><xsl:value-of select="."/></xsl:when>
       <xsl:otherwise>
         <xsl:element name="{local-name()}" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
