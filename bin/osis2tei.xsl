@@ -14,18 +14,20 @@
   <xsl:template match="/">
     <xsl:element name="TEI" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
       <xsl:copy-of select="document('')/*/@xsi:schemaLocation"/>
-      <xsl:for-each-group select="//node()" group-starting-with="osis:seg[@type='keyword']">
-        <xsl:choose>
-          <xsl:when test="position()=1"/><!-- drop stuff before first keyword -->
-          <xsl:otherwise>
-            <xsl:element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-              <xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
-              <!-- Select only those nodes with no parent element in the current-group, because teiosis template does a recursive copy -->
-              <xsl:for-each select="current-group()[count(index-of(current-group(), ./..))=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each-group>
+      <xsl:for-each select="//osis:div[@type='glossary']">
+        <xsl:for-each-group select=".//node()" group-starting-with="osis:seg[@type='keyword']">
+          <xsl:choose>
+            <xsl:when test="position()=1 and current-group()[1][not(self::osis:seg[@type='keyword'])]"/><!-- drop stuff before first keyword -->
+            <xsl:otherwise>
+              <xsl:element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+                <xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
+                <!-- Select only those nodes with no parent element in the current-group, because teiosis template does a recursive copy -->
+                <xsl:for-each select="current-group()[count(index-of(current-group(), ./..))=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
+              </xsl:element>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each-group>
+      </xsl:for-each>
     </xsl:element>
   </xsl:template>
 
