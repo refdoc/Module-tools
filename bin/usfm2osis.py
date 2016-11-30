@@ -438,7 +438,7 @@ def convertToOsis(sFile):
         """
 
         # \id_<CODE>_(Name of file, Book name, Language, Last edited, Date etc.)
-        osis = re.sub(r'\\id\s+([A-Z0-9]{3})\b\s*([^\\'+'\n]*?)\n'+r'(.*?)(?=\\id|$)', lambda m: '\uFDD0<div type="book" osisID="' + bookDict[m.group(1)] + '"' + (' canonical="true"' if bookDict[m.group(1)] not in specialBooks else '') + '>\n' + (('<!-- id comment - ' + m.group(2) + ' -->\n') if m.group(2) else '') + m.group(3) + '</div type="book">\uFDD0\n' , osis, flags=re.DOTALL)
+        osis = re.sub(r'\\id\s+([A-Z0-9]{3})\b\s*([^\\'+'\n]*?)\n'+r'(.*?)(?=\\id|\Z)', lambda m: '\uFDD0<div type="book" osisID="' + bookDict[m.group(1)] + '"' + (' canonical="true"' if bookDict[m.group(1)] not in specialBooks else '') + '>\n' + (('<!-- id comment - ' + m.group(2) + ' -->\n') if m.group(2) else '') + m.group(3) + '</div type="book">\uFDD0\n' , osis, flags=re.DOTALL)
 
         # \ide_<ENCODING>
         osis = re.sub(r'\\ide\b.*'+'\n', '', osis) # delete, since this was handled above
