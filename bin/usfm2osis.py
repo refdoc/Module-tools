@@ -1410,8 +1410,10 @@ def convertToOsis(sFile):
 
     if DEBUG:
         localUnhandledTags = set(re.findall(r'(\\[^\s]*)', osis))
+        enc = 'utf-8'
+        if encoding: enc = encoding
         if localUnhandledTags:
-            print(('Unhandled USFM tags in ' + sFile + ': ' + ', '.join(localUnhandledTags) + ' (' + str(len(localUnhandledTags)) + ' total)'))
+            print(('Unhandled USFM tags in ' + sFile + ': ' + ', '.join(localUnhandledTags) + ' (' + str(len(localUnhandledTags)) + ' total)').encode(enc))
 
     return osis
 
