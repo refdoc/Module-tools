@@ -50,7 +50,7 @@
   </xsl:template>
 
   <!-- scope title references should not appear as reference links !-->
-  <xsl:template match="osis:title[@type='scope']/osis:reference">
+  <xsl:template match="osis:title[@type='scope']//osis:reference">
     <xsl:apply-templates/>
   </xsl:template>
   
