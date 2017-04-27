@@ -615,18 +615,22 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\mr\s+(.+)', '\uFDD4<title type="scope"><reference>'+r'\1</reference></title>', osis)
 
         # \s#_text...
+        # At some point, usfm2osis.py was changed to remove the \s2 through \s4 title "level"  
+        # attributes. Perhaps this was done to follow the OSIS manual recommendation, however 
+        # the current implementation still does not strictly follow that recommendation. 
+        # Since the level attribute is useful and appropriate, it has been reinstated. !-->
         osis = re.sub(r'\\s1?\s+(.+)', lambda m: '\uFDDA<div type="section"><title>' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDA<div type="section">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\\mt(\d?))', r'\1'+'</div>\uFDDA\n', osis, flags=re.DOTALL)
         if relaxedConformance:
             osis = re.sub(r'\\ss\s+', r'\\s2 ', osis)
             osis = re.sub(r'\\sss\s+', r'\\s3 ', osis)
-        osis = re.sub(r'\\s2\s+(.+)', lambda m: '\uFDDB<div type="subSection"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\s2\s+(.+)', lambda m: '\uFDDB<div type="subSection"><title level="2">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDB<div type="subSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\\mt(\d?))', r'\1'+'</div>\uFDDB\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\s3\s+(.+)', lambda m: '\uFDDC<div type="x-subSubSection"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\s3\s+(.+)', lambda m: '\uFDDC<div type="x-subSubSection"><title level="3">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDC<div type="x-subSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\\mt(\d?))', r'\1'+'</div>\uFDDC\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\s4\s+(.+)', lambda m: '\uFDDD<div type="x-subSubSubSection"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\s4\s+(.+)', lambda m: '\uFDDD<div type="x-subSubSubSection"><title level="4">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDD<div type="x-subSubSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\uFDDD|\\mt(\d?))', r'\1'+'</div>\uFDDD\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\s5\s+(.+)', lambda m: '\uFDDE<div type="x-subSubSubSubSection"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\s5\s+(.+)', lambda m: '\uFDDE<div type="x-subSubSubSubSection"><title level="5">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDE<div type="x-subSubSubSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\uFDDD|\uFDDE|\\mt(\d?))', r'\1'+'</div>\uFDDE\n', osis, flags=re.DOTALL)
 
         # \sr_text...
