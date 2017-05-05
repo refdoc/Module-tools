@@ -524,13 +524,13 @@ def convertToOsis(sFile):
         # \is#_text...
         osis = re.sub(r'\\is1?\s+(.+)', lambda m: '\uFDE2<div type="section" subType="x-introduction"><title>' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDE2<div type="section" subType="x-introduction">[^\uFDD0\uFDE8\uFDE2]+)(?!\\c\b)', r'\1'+'</div>\uFDE2\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\is2\s+(.+)', lambda m: '\uFDE3<div type="subSection" subType="x-introduction"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\is2\s+(.+)', lambda m: '\uFDE3<div type="subSection" subType="x-introduction"><title level="2">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDE3<div type="subSection" subType="x-introduction">[^\uFDD0\uFDE8\uFDE2\uFDE3]+)(?!\\c\b)', r'\1'+'</div>\uFDE3\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\is3\s+(.+)', lambda m: '\uFDE4<div type="x-subSubSection" subType="x-introduction"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\is3\s+(.+)', lambda m: '\uFDE4<div type="x-subSubSection" subType="x-introduction"><title level="3">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDE4<div type="subSubSection" subType="x-introduction">[^\uFDD0\uFDE8\uFDE2\uFDE3\uFDE4]+)(?!\\c\b)', r'\1'+'</div>\uFDE4\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\is4\s+(.+)', lambda m: '\uFDE5<div type="x-subSubSubSection" subType="x-introduction"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\is4\s+(.+)', lambda m: '\uFDE5<div type="x-subSubSubSection" subType="x-introduction"><title level="4">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDE5<div type="subSubSubSection" subType="x-introduction">[^\uFDD0\uFDE8\uFDE2\uFDE3\uFDE4\uFDE5]+)(?!\\c\b)', r'\1'+'</div>\uFDE5\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\is5\s+(.+)', lambda m: '\uFDE6<div type="x-subSubSubSubSection" subType="x-introduction"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\is5\s+(.+)', lambda m: '\uFDE6<div type="x-subSubSubSubSection" subType="x-introduction"><title level="5">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDE6<div type="subSubSubSubSection" subType="x-introduction">[^\uFDD0\uFDE8\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6]+?)(?!\\c\b)', r'\1'+'</div>\uFDE6\n', osis, flags=re.DOTALL)
 
         # The USFM spec doesn't specifically prohibit regular paragraphs appearing in intros, and sometimes this is purposefully done by translators for various reasons.
@@ -602,13 +602,13 @@ def convertToOsis(sFile):
         # \ms#_text...
         osis = re.sub(r'\\ms1?\s+(.+)', lambda m: '\uFDD5<div type="majorSection"><title>' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDD5[^\uFDD5\uFDD0\uFDE8]+)', r'\1'+'</div>\uFDD5\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ms2\s+(.+)', lambda m: '\uFDD6<div type="majorSection" n="2"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\ms2\s+(.+)', lambda m: '\uFDD6<div type="majorSection" n="2"><title level="2">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDD6[^\uFDD5\uFDD0\uFDE8\uFDD6]+)', r'\1'+'</div>\uFDD6\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ms3\s+(.+)', lambda m: '\uFDD7<div type="majorSection" n="3"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\ms3\s+(.+)', lambda m: '\uFDD7<div type="majorSection" n="3"><title level="3">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDD7[^\uFDD5\uFDD0\uFDE8\uFDD6\uFDD7]+)', r'\1'+'</div>\uFDD7\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ms4\s+(.+)', lambda m: '\uFDD8<div type="majorSection" n="4"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\ms4\s+(.+)', lambda m: '\uFDD8<div type="majorSection" n="4"><title level="4">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDD8[^\uFDD5\uFDD0\uFDE8\uFDD6\uFDD7\uFDD8]+)', r'\1'+'</div>\uFDD8\n', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ms5\s+(.+)', lambda m: '\uFDD9<div type="majorSection" n="5"><title>' + m.group(1) + '</title>', osis)
+        osis = re.sub(r'\\ms5\s+(.+)', lambda m: '\uFDD9<div type="majorSection" n="5"><title level="5">' + m.group(1) + '</title>', osis)
         osis = re.sub('(\uFDD9[^\uFDD5\uFDD0\uFDE8\uFDD6\uFDD7\uFDD8\uFDD9]+)', r'\1'+'</div>\uFDD9\n', osis, flags=re.DOTALL)
 
         # \mr_text...
