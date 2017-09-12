@@ -22,7 +22,7 @@
               <xsl:element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
                 <xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
                 <!-- Select only those nodes with no parent element in the current-group, because teiosis template does a recursive copy -->
-                <xsl:for-each select="current-group()[count(index-of(current-group(), ./..))=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
+                <xsl:for-each select="current-group()[count(./.. intersect current-group())=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
               </xsl:element>
             </xsl:otherwise>
           </xsl:choose>
