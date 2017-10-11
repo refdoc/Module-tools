@@ -2,8 +2,10 @@
 <xsl:stylesheet version="2.0"
  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
  xmlns:osis="http://www.bibletechnologies.net/2003/OSIS/namespace">
+ 
+  <xsl:param name="KeepGlossaryDuplicates" select="'no'"/>
 
- <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD modules !-->
+  <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD modules !-->
   
   <xsl:template match="node()|@*" name="identity">
     <xsl:copy>
@@ -104,6 +106,10 @@
         <xsl:call-template name="identity"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="*[@subType='x-glossary-duplicate']">
+    <xsl:if test="$KeepGlossaryDuplicates != 'no'"><xsl:apply-templates select="."/></xsl:if>
   </xsl:template>
   
   <!-- A second pass is needed to handle all <l> tags, including 
