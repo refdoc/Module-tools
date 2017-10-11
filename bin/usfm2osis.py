@@ -1314,26 +1314,28 @@ def convertToOsis(sFile):
         # delete Unicode non-characters (except section divs for now)
         for c in '\uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF':
             osis = osis.replace(c, '')
-
-        # </div-book></div-section> --> </div-section></div-book>
-        sectionDivChar = '[\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
-        osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
-        
-        # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-        slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)';
-        osis = re.sub(slideTags+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
-        osis = re.sub(slideTags+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
-        osis = re.sub(slideTags+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
-        slideTags = '((<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
-        osis = re.sub(slideTags+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
-        
-        # </verse><verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse><verse>
-        slideTags = '((</div>'+sectionDivChar+'|</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)'
-        osis = re.sub('(<verse osisID=[^>]*>)'+slideTags, r'\2\1', osis)
-        osis = re.sub('(<chapter [^>]*sID=[^>]*/>)'+slideTags, r'\2\1', osis)
-        osis = re.sub('(<chapter eID=[^>]*/>)'+slideTags, r'\2\1', osis)
-        slideTags = '((</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
-        osis = re.sub('(<verse eID=[^>]*>)'+slideTags, r'\2\1', osis)
+            
+        # adjust tag order for Bible books
+        if re.search('<div type="book" osisID="(' + "|".join([x for x in bookDict.values() if x not in specialBooks]) + ')"', osis):
+            # </div-book></div-section> --> </div-section></div-book>
+            sectionDivChar = '[\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE]'
+            osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
+            
+            # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
+            slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)';
+            osis = re.sub(slideTags+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
+            osis = re.sub(slideTags+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
+            osis = re.sub(slideTags+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
+            slideTags = '((<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+            osis = re.sub(slideTags+'(?P<vc><verse osisID=[^>]*>)', r'\g<vc>\1', osis)
+            
+            # </verse><verse></end-tags-belonging-to-previous-verse> --> </end-tags-belonging-to-previous-verse></verse><verse>
+            slideTags = '((</div>'+sectionDivChar+'|</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)'
+            osis = re.sub('(<verse osisID=[^>]*>)'+slideTags, r'\2\1', osis)
+            osis = re.sub('(<chapter [^>]*sID=[^>]*/>)'+slideTags, r'\2\1', osis)
+            osis = re.sub('(<chapter eID=[^>]*/>)'+slideTags, r'\2\1', osis)
+            slideTags = '((</([pl]|lg|list|item)(\s[^>]*)?>|\s)+)' # last slide doesn't include titles
+            osis = re.sub('(<verse eID=[^>]*>)'+slideTags, r'\2\1', osis)
         
         # delete rest of Unicode non-characters
         for c in '\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE':
