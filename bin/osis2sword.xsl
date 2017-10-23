@@ -105,7 +105,7 @@
           </element>
         </copy>
       </when>
-      <otherwise><apply-templates/></otherwise>
+      <otherwise><copy><apply-templates select="node()|@*"/></copy></otherwise>
     </choose>
   </template>
   
