@@ -3,8 +3,6 @@
  xpath-default-namespace="http://www.bibletechnologies.net/2003/OSIS/namespace"
  xmlns="http://www.w3.org/1999/XSL/Transform"
  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
- 
-  <param name="KeepGlossaryDuplicates" select="'no'"/>
 
   <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD modules !-->
   
@@ -107,10 +105,6 @@
       </when>
       <otherwise><copy><apply-templates select="node()|@*"/></copy></otherwise>
     </choose>
-  </template>
-  
-  <template match="*[@subType='x-glossary-duplicate']">
-    <if test="$KeepGlossaryDuplicates != 'no'"><apply-templates select="."/></if>
   </template>
   
   <!-- A second pass is needed to handle all <l> tags, including 
