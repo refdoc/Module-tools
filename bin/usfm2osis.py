@@ -539,7 +539,7 @@ def convertToOsis(sFile):
             paragraphregex += '|p|pc|pr|m|pmo|pm|pmc|pmr|pi|pi1|pi2|pi3|pi4|pi5|mi|nb|phi|ps|psi|p1|p2|p3|p4|p5'
             
         # \ip_text...
-        osis = re.sub(r'\\ip\s+(.*?)(?=(\\(m\w*|i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li|iex?|s[\w\d]*|c'+paragraphregex+r')\b|<(/?div|p|closer|title)\b))', lambda m: '\uFDD3<p subType="x-introduction">\n' + m.group(1) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\ip\s+(.*?)(?=(\\(m\w*|i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li\d?|iex?|s[\w\d]*|c'+paragraphregex+r')\b|<(/?div|p|closer|title)\b))', lambda m: '\uFDD3<p subType="x-introduction">\n' + m.group(1) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \ipi_text...
         # \im_text...
@@ -548,7 +548,7 @@ def convertToOsis(sFile):
         # \imq_text...
         # \ipr_text...
         pType = {'ipi':'x-indented', 'im':'x-noindent', 'imi':'x-noindent-indented', 'ipq':'x-quote', 'imq':'x-noindent-quote', 'ipr':'x-right'}
-        osis = re.sub(r'\\(ipi|im|imi|ipq|imq|ipr)\s+(.*?)(?=(\\(i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li|iex?|s|c'+paragraphregex+r')\b|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '" subType="x-introduction">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\(ipi|im|imi|ipq|imq|ipr)\s+(.*?)(?=(\\(i?m[iq]?|i?p[iqr]?|lit|cls|tr|io[\dt]?|iqt?|i?li\d?|iex?|s|c'+paragraphregex+r')\b|<(/?div|p|closer)\b))', lambda m: '\uFDD3<p type="' + pType[m.group(1)] + '" subType="x-introduction">\n' + m.group(2) + '\uFDD3</p>\n', osis, flags=re.DOTALL)
 
         # \ib
         osis = re.sub(r'\\ib\b\s?', '\uFDE7<lb type="x-p"/>', osis)
