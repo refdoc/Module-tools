@@ -1322,7 +1322,7 @@ def convertToOsis(sFile):
             osis = re.sub('(</div type="book">)(</div>'+sectionDivChar+')', r'\2\1', osis)
             
             # <start-tags-belonging-to-next-verse></verse><verse> --> </verse><verse><start-tags-belonging-to-next-verse>
-            slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)';
+            slideTags = '(('+sectionDivChar+'<div\s[^>]*><title[^>]*>.*?</title>(\s*</div>'+sectionDivChar+')?|<title(?! canonical="true")[^>]*>.*?</title>|<([pl]|lg|list|item)(\s[^>]*)?>|\s)+)';
             osis = re.sub(slideTags+'(?P<vc><verse eID=[^>]*>)', r'\g<vc>\1', osis)
             osis = re.sub(slideTags+'(?P<vc><chapter eID=[^>]*/>)', r'\g<vc>\1', osis)
             osis = re.sub(slideTags+'(?P<vc><chapter [^>]*sID=[^>]*/>)', r'\g<vc>\1', osis)
