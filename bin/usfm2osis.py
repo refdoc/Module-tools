@@ -559,16 +559,16 @@ def convertToOsis(sFile):
         osis = re.sub(r'\\iq(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iq\d?|fig|q\d?|b)\b|<title\b))', r'<l level="\1" subType="x-introduction">\2</l>', osis, flags=re.DOTALL)
 
         # \ili#_text...
-        osis = re.sub(r'\\ili\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE0'+r'\1'+'\uFDE0</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\ili(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE0'+r'\2'+'\uFDE0</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\ili\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|/?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE0'+r'\1'+'\uFDE0</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\ili(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|/?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE0'+r'\2'+'\uFDE0</item>', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
         osis = re.sub('(<item [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4]+</item>)', '\uFDD3<list>'+r'\1'+'</list>\uFDD3', osis, flags=re.DOTALL)
 
         # \iot_text...
         # \io#_text...(references range)
-        osis = re.sub(r'\\io\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE1'+r'\1'+'\uFDE1</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\io(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE1'+r'\2'+'\uFDE1</item>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\iot\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|\?div)\b))', '<item type="head">\uFDE1'+r'\1'+'\uFDE1</item type="head">', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\io\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|/?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE1'+r'\1'+'\uFDE1</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\io(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|/?div)\b))', r'<item type="x-indent-\1" subType="x-introduction">\uFDE1'+r'\2'+'\uFDE1</item>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\iot\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iot|io\d?|iex?|c|p)\b|<(lb|title|item|/?div)\b))', '<item type="head">\uFDE1'+r'\1'+'\uFDE1</item type="head">', osis, flags=re.DOTALL)
         osis = osis.replace('\n</item>', '</item>\n')
         osis = re.sub('(<item [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE0]+</item>)', '\uFDD3<div type="outline" subType="x-introduction"><list>'+r'\1'+'</list></div>\uFDD3', osis, flags=re.DOTALL)
         osis = re.sub('item type="head"', 'head', osis)
