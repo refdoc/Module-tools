@@ -117,11 +117,29 @@
   
   <!-- Due to the way <l> may be rendered by front-ends, <l> elements must not contain <verse> tags 
   otherwise these would be broken into multiple lines. The fix is to remove all verse tags within 
-  <l> elements, and make the previous/following verse tags span the entire element. !-->
+  <l> elements, and make the previous/following verse tags span the entire element. Similarly, titles
+  cannot contain verse tags, and this may occur with canonical titles in Psalms, so fix these too. !-->
   <template match="verse[parent::l]" mode="Pass2" priority="2"/>
-  <!-- Modify attribs of each verse that starts outside <l> but the following verse starts within <l> !-->
+  <template match="verse[parent::title]" mode="Pass2" priority="2"/>
+  
+  <!-- Modify attribs of each verse that starts outside <l|title> but the following verse starts within <l|title> !-->
   <template match="verse[@sID][not(parent::l)][following::verse[@sID][1][parent::l]]" mode="Pass2">
-    <variable name="groupend" select="./following::verse[@sID][not(parent::l)][1]" />
+    <call-template name="newSID"><with-param name="groupend" select="./following::verse[@sID][not(parent::l)][1]"/></call-template>
+  </template>
+  <template match="verse[@sID][not(parent::title)][following::verse[@sID][1][parent::title]]" mode="Pass2">
+    <call-template name="newSID"><with-param name="groupend" select="./following::verse[@sID][not(parent::title)][1]"/></call-template>
+  </template>
+  
+  <!-- Modify attribs of each verse that ends outside <l|title> but the preceding verse ends within <l|title> !-->
+  <template match="verse[@eID][not(parent::l)][preceding::verse[@eID][1][parent::l]]" mode="Pass2">
+    <call-template name="newEID"><with-param name="groupend" select="./preceding::verse[@eID][not(parent::l)][1]"/></call-template>
+  </template>
+  <template match="verse[@eID][not(parent::title)][preceding::verse[@eID][1][parent::title]]" mode="Pass2">
+    <call-template name="newEID"><with-param name="groupend" select="./preceding::verse[@eID][not(parent::title)][1]"/></call-template>
+  </template>
+  
+  <template name="newSID">
+    <param name="groupend"/>
     <copy>
       <attribute name="osisID">
         <value-of select="string-join((./@osisID, ./following::verse[@sID][. &lt;&lt; $groupend]/@osisID), ' ')"/>
@@ -131,9 +149,9 @@
       </attribute>
     </copy>
   </template>
-  <!-- Modify attribs of each verse that ends outside <l> but the preceding verse ends within <l> !-->
-  <template match="verse[@eID][not(parent::l)][preceding::verse[@eID][1][parent::l]]" mode="Pass2">
-    <variable name="groupend" select="./preceding::verse[@eID][not(parent::l)][1]" />
+  
+  <template name="newEID">
+    <param name="groupend"/>
     <copy>
       <attribute name="eID">
         <value-of select="string-join((./preceding::verse[@eID][$groupend &lt;&lt; .]/@eID, ./@eID), ' ')"/>
