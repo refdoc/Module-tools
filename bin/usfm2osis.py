@@ -645,7 +645,8 @@ def convertToOsis(sFile):
 
         # \sp_text...
         # USFM \sp tags represent printed non-canonical secondary titles, whereas the OSIS <speaker> tag is indended to hold a canonical name associated with <speech> elements.
-        osis = re.sub(r'\\sp\s+(.+)', '\uFDD4<title level="2" subType="x-speaker">'+r'\1</title>', osis)
+        # A type attribute is required so that osis2mod recognizes \sp as a pre-verse title.
+        osis = re.sub(r'\\sp\s+(.+)', '\uFDD4<title level="2" subType="x-speaker" type="x-speaker">'+r'\1</title>', osis)
 
         # \mt#_text...
         osis = re.sub(r'\\mt(\d?)\s+(.+)', lambda m: '\uFDD4<title ' + ('level="'+m.group(1)+'" ' if m.group(1) else '') + 'type="main">' + m.group(2) + '</title>', osis)
