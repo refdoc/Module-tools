@@ -1166,7 +1166,10 @@ def convertToOsis(sFile):
         osis = re.sub(r'([^\s]+)(\s*)\\pro\s+(.+?)(\s*)\\pro\*', r'<w xlit="\3">\1</w>\2\4', osis, flags=re.DOTALL)
 
         # \w_...\w*
-        osis = re.sub(r'\\w\s+(.+?)(\s*)\\w\*', r'\1<index index="Glossary" level1="\1"/>\2', osis, flags=re.DOTALL)
+        if relaxedConformance:
+            osis = re.sub(r'\\w\s+(([^\|\\]+)[^\\]*?)(\s*)\\w\*', r'\2<index index="Glossary" level1="\1"/>\3', osis, flags=re.DOTALL)
+        else:
+            osis = re.sub(r'\\w\s+(.+?)(\s*)\\w\*', r'\1<index index="Glossary" level1="\1"/>\2', osis, flags=re.DOTALL)
 
         # \wg_...\wg*
         osis = re.sub(r'\\wg\s+(.+?)(\s*)\\wg\*', r'\1<index index="Greek" level1="\1"/>\2', osis, flags=re.DOTALL)
