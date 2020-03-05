@@ -1,51 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0"
- xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
- xmlns:osis="http://www.bibletechnologies.net/2003/OSIS/namespace"
- xmlns:teiosis="http://www.crosswire.org/2013/TEIOSIS/namespace"
+<stylesheet version="2.0"
+ xmlns="http://www.w3.org/1999/XSL/Transform"
+ xmlns:my="Module-tools/bin/osis2tei.xsl"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.crosswire.org/2013/TEIOSIS/namespace http://www.crosswire.org/OSIS/teiP5osis.2.5.0.xsd">
+ xpath-default-namespace="http://www.bibletechnologies.net/2003/OSIS/namespace"
+ exclude-result-prefixes="#all">
 
   <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD TEI dictionary modules !-->
 
-  <xsl:output indent="yes"/>
-  <xsl:strip-space elements="*"/>
+  <output indent="yes"/>
+  <strip-space elements="*"/>
   
-  <xsl:template match="/">
-    <xsl:element name="TEI" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-      <xsl:copy-of select="document('')/*/@xsi:schemaLocation"/>
-      <xsl:for-each select="//osis:div[@type='glossary']">
-        <xsl:for-each-group select=".//node()" group-starting-with="osis:seg[@type='keyword']">
-          <xsl:choose>
-            <xsl:when test="position()=1 and current-group()[1][not(self::osis:seg[@type='keyword'])]"/><!-- drop stuff before first keyword -->
-            <xsl:otherwise>
-              <xsl:element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-                <xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
-                <!-- Select only those nodes with no parent element in the current-group, because teiosis template does a recursive copy -->
-                <xsl:for-each select="current-group()[count(./.. intersect current-group())=0]"><xsl:call-template name="teiosis"/></xsl:for-each>
-              </xsl:element>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:for-each-group>
-      </xsl:for-each>
-    </xsl:element>
-  </xsl:template>
+  <template match="/">
+    <element name="TEI" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+      <attribute name="xsi:schemaLocation">http://www.crosswire.org/2013/TEIOSIS/namespace http://www.crosswire.org/OSIS/teiP5osis.2.5.0.xsd</attribute>
+      <element name="text" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+        <element name="body" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+          <for-each select="//div[@type='glossary']">
+            <for-each-group select="node()" group-by="my:groups(.)">
+              <variable name="myKey" as="element(seg)?" 
+                  select="current-group()/descendant-or-self::seg[@type='keyword']
+                                         [my:groups(.) = current-grouping-key()]"/>
+              <if test="$myKey">
+                <element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+                  <attribute name="n" select="$myKey"/>
+                  <apply-templates select="current-group()"/>
+                </element>
+              </if>
+            </for-each-group>
+          </for-each>
+        </element>
+      </element>
+    </element>
+  </template>
+  
+  <template match="node()" priority="2">
+    <if test="my:groups(.) = current-grouping-key()"><next-match/></if>
+  </template>
+  
+  <template match="text()|@*"><copy/></template>
+  
+  <!-- convert this group's elements to TEI namespace -->
+  <template match="element()">
+    <element name="{local-name()}" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+      <apply-templates select="node()|@*"/>
+    </element>
+  </template>
+  
+  <!-- flatten any p|div without text -->
+  <template match="p | div">
+    <choose>
+      <when test="descendant::text()[normalize-space()]
+                                    [not(parent::seg[@type='keyword'])]
+                                    [my:groups(.) = current-grouping-key()]">
+        <next-match/>
+      </when>
+      <otherwise><apply-templates/></otherwise>
+    </choose>
+  </template>
+  
+  <!-- filter out unwanted elements -->
+  <template match="chapter | title[@type='x-chapterLabel'] | seg[@type='keyword']" priority="3"/>
+  
+  <function name="my:groups" as="xs:integer+">
+    <param name="node" as="node()"/>
+    <sequence select="for $i in $node/descendant-or-self::node() return
+                        count($i[ancestor-or-self::seg[@type='keyword']]) +
+                        count($i/preceding::seg[@type='keyword'])"/>
+  </function>
 
-  <!-- Filter and change all element namespaces to teiosis -->
-  <xsl:template name="teiosis">
-    <xsl:choose>
-      <xsl:when test="self::comment()|self::osis:chapter|self::osis:title[@type='x-chapterLabel']|self::osis:seg[@type='keyword']"/><!-- Filter any unwanted elements here -->
-      <xsl:when test="self::text()"><xsl:value-of select="."/></xsl:when>
-      <xsl:otherwise>
-        <xsl:element name="{local-name()}" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-          <xsl:copy-of select="@*"/>
-          <!-- Do not recurse on child nodes following a keyword element, since these nodes are part of the next group -->
-          <xsl:for-each select="node()[count(preceding-sibling::*/descendant-or-self::osis:seg[@type='keyword']) = 0]">
-            <xsl:call-template name="teiosis"/>
-          </xsl:for-each>
-        </xsl:element>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-</xsl:stylesheet>
+</stylesheet>
