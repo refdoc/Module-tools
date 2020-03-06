@@ -8,8 +8,6 @@
  exclude-result-prefixes="#all">
 
   <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD TEI dictionary modules !-->
-
-  <output indent="yes"/>
   <strip-space elements="*"/>
   
   <template match="/">
@@ -27,6 +25,7 @@
                   <attribute name="n" select="$myKey"/>
                   <apply-templates select="current-group()"/>
                 </element>
+                <text>&#xa;</text>
               </if>
             </for-each-group>
           </for-each>
@@ -39,7 +38,8 @@
     <if test="my:groups(.) = current-grouping-key()"><next-match/></if>
   </template>
   
-  <template match="text()|@*"><copy/></template>
+  <template match="@*"><copy/></template>
+  <template match="text()"><copy-of select="replace(., '[\s\n]+', ' ')"/></template>
   
   <!-- convert this group's elements to TEI namespace -->
   <template match="element()">
