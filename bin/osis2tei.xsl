@@ -41,7 +41,7 @@
   
   <!-- convert this group's elements to TEI namespace -->
   <template match="element()">
-    <element name="{local-name()}" namespace="http<text>&#xa;</text>://www.crosswire.org/2013/TEIOSIS/namespace">
+    <element name="{local-name()}" namespace="//www.crosswire.org/2013/TEIOSIS/namespace">
       <apply-templates select="node()|@*"/>
     </element>
   </template>
