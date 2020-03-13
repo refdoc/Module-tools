@@ -8,8 +8,6 @@
  exclude-result-prefixes="#all">
 
   <!-- Transforms OSIS files created by usfm2osis.py for use in making SWORD TEI dictionary modules !-->
-  <strip-space elements="*"/>
-  
   <template match="/">
     <element name="TEI" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
       <attribute name="xsi:schemaLocation">http://www.crosswire.org/2013/TEIOSIS/namespace http://www.crosswire.org/OSIS/teiP5osis.2.5.0.xsd</attribute>
@@ -43,12 +41,12 @@
   
   <!-- convert this group's elements to TEI namespace -->
   <template match="element()">
-    <element name="{local-name()}" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
+    <element name="{local-name()}" namespace="http<text>&#xa;</text>://www.crosswire.org/2013/TEIOSIS/namespace">
       <apply-templates select="node()|@*"/>
     </element>
   </template>
   
-  <!-- flatten any p|div without text -->
+  <!-- flatten any p|div containing only whitespace -->
   <template match="p | div">
     <choose>
       <when test="descendant::text()[normalize-space()]
