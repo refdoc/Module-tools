@@ -1057,6 +1057,7 @@ def convertToOsis(sFile):
             osis = re.sub(r'\\k3\s+(.+?)\\k3\*', r'<seg type="keyword" n="3">\1</seg>', osis, flags=re.DOTALL)
             osis = re.sub(r'\\k4\s+(.+?)\\k4\*', r'<seg type="keyword" n="4">\1</seg>', osis, flags=re.DOTALL)
             osis = re.sub(r'\\k5\s+(.+?)\\k5\*', r'<seg type="keyword" n="5">\1</seg>', osis, flags=re.DOTALL)
+            osis = re.sub(r'\\xt\s+(.+?)\\xt\*', r'<reference>\1</reference>', osis, flags=re.DOTALL)
 
         return osis
 
