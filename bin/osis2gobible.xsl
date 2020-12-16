@@ -1,111 +1,130 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0"
+<stylesheet version="2.0"
+ xmlns="http://www.w3.org/1999/XSL/Transform"
  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
  xmlns:osis="http://www.bibletechnologies.net/2003/OSIS/namespace"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  
- <xsl:output standalone="yes" indent="yes"/>
- <xsl:strip-space elements="*"/>
+ <output standalone="yes" indent="yes"/>
+ <strip-space elements="*"/>
 
-  <!-- Transforms OSIS files created by usfm2osis.py and paratext2osis.pl for use with GoBible Creator -->
+  <!-- Transforms OSIS files created by usfm2osis.py for use with 
+  GoBible Creator -->
   
-  <!-- Make two passes over entire node set -->
-  <xsl:template match="/">
-    <xsl:variable name="pass1">
-      <xsl:apply-templates/>
-    </xsl:variable>
-    <xsl:apply-templates select="$pass1" mode="pass2"/>
-  </xsl:template>
+  <!-- Make two passes over the entire node set -->
+  <template match="/">
+    <!-- PASS 1: simplify the OSIS hierarchy, and filter out notes, 
+    non canonical titles etc.. -->
+    <variable name="pass1"><apply-templates mode="pass1"/></variable>
+    
+    <!-- PASS 2: insure chapter and verse tags are container elements -->
+    <apply-templates mode="pass2" select="$pass1"/>
+  </template>
   
-  <!-- PASS 1: FILTER AND SIMPLIFY ELEMENT HIERARCHY -->
-  <xsl:template match="node()|@*" name="identity">
-    <xsl:copy>
-       <xsl:apply-templates select="node()|@*"/>
-    </xsl:copy>
-  </xsl:template>
+  <template mode="pass1" match="node()|@*">
+    <apply-templates mode="#current" select="node()|@*"/>
+  </template>
   
-  <!-- remove comments !-->
-  <xsl:template match="comment()" priority="1"/>
+  <!-- Keep these elements and most of their text descendants (on pass2,  
+  text nodes outside of verses will also be dropped) -->
+  <template mode="pass1" match="text() |
+                                osis:osis |
+                                osis:osisText |
+                                osis:div[@type='book'] |
+                                *[@type='canonical'] |
+                                osis:chapter |
+                                osis:verse" priority="5">
+    <copy><copy-of select="@*"/><apply-templates mode="#current"/></copy>
+  </template>
   
-  <!-- remove all tags by default -->
-  <xsl:template match="*" priority="1">
-    <xsl:apply-templates/>
-  </xsl:template>
+  <!-- Remove these elements entirely (including their text descendants)-->
+  <template mode="pass1" match="osis:header |
+      osis:div[@type='book'][not(descendant::osis:verse)] |
+      osis:title[not(@type='canonical')] |
+      osis:note" priority="10"/>
   
-  <!-- remove these elements entirely -->
-  <xsl:template match="osis:w|osis:note|osis:title|osis:header" priority="2"/>
+  <template mode="pass2" match="node()|@*">
+    <copy><apply-templates mode="#current" select="node()|@*"/></copy>
+  </template>
   
-  <!-- but keep only these elements in their entirety -->
-  <xsl:template match="osis:osis|osis:osisText|osis:div[@type='book']|*[@type='canonical']|osis:chapter|osis:verse" priority="3">
-    <xsl:call-template name="identity"/>
-  </xsl:template>
+  <!-- GoBible Creator requires a bookGroup div --> 
+  <template mode="pass2" match="osis:osisText">
+    <copy>
+      <apply-templates mode="#current" select="@*"/>
+      <element name="div" 
+          namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">
+        <attribute name="type">bookGroup</attribute>
+        <for-each select="descendant::osis:div[@type='book']">
+          <call-template name="book"/>
+        </for-each>
+      </element>
+    </copy>
+  </template>
   
-  <!-- PASS 2: MAKE CONTAINERS FROM MILESTONE CHAPTER (IF NEEDED) AND VERSE TAGS -->
-  <xsl:template match="node()|@*" mode="pass2">
-    <xsl:copy>
-      <xsl:apply-templates select="node()|@*" mode="pass2"/>
-    </xsl:copy>
-  </xsl:template>
-  
-  <!-- GoBible Creator requires this bookGroup div --> 
-  <xsl:template match="osis:osisText" mode="pass2">
-    <xsl:copy>
-      <xsl:element name="div" xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace">
-        <xsl:attribute name="type">bookGroup</xsl:attribute>
-        <xsl:apply-templates select="node()|@*" mode="pass2"/>
-      </xsl:element>
-    </xsl:copy>
-  </xsl:template>
+  <!-- Support verse container elements (although normally verse tags
+  are milestones) -->
+  <template mode="pass2" match="osis:verse">
+    <apply-templates mode="#current"/>
+  </template>
  
  <!-- Insure chapters are container elements -->
-  <xsl:template match="osis:div[@type='book']" mode="pass2">
-    <xsl:copy>
-      <xsl:apply-templates select="@*" mode="pass2"/>
-      <xsl:choose>
-        <!-- this handles element chapters -->
-        <xsl:when test="./osis:chapter/osis:verse">
-          <xsl:for-each select="./osis:chapter">
-            <xsl:copy>
-              <xsl:apply-templates select="@*" mode="pass2"/>
-              <xsl:for-each-group select="node()" group-starting-with="osis:verse[@sID]">
-                <xsl:call-template name="verses"/>
-              </xsl:for-each-group>
-            </xsl:copy>
-          </xsl:for-each>
-        </xsl:when>
-        <!-- this handles milestone chapters -->
-        <xsl:otherwise>
-          <xsl:for-each-group select="node()" group-starting-with="osis:chapter[@sID]">
-            <xsl:choose>
-              <xsl:when test="position()=1 and name(current())!='chapter'"/><!-- remove introductions -->
-              <xsl:otherwise>
-                <xsl:element name="chapter" xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace">
-                  <xsl:attribute name="osisID" select="current()/@sID"/>
-                  <xsl:for-each-group select="current-group()[not(self::osis:chapter)]" group-starting-with="osis:verse[@sID]">
-                    <xsl:call-template name="verses"/>
-                  </xsl:for-each-group>
-                </xsl:element>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:for-each-group>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:copy>
-  </xsl:template>
+  <template name="book">
+    <copy>
+      <apply-templates mode="pass2" select="@*"/>
+      <choose>
+        <!-- this handles chapter as container element -->
+        <when test="child::osis:chapter/osis:verse">
+          <for-each select="child::osis:chapter">
+            <copy>
+              <apply-templates mode="pass2" select="@*"/>
+              <for-each-group select="node()" 
+                  group-starting-with="osis:verse[@sID]">
+                <call-template name="verse"/>
+              </for-each-group>
+            </copy>
+          </for-each>
+        </when>
+        <!-- this handles chapter as milestone -->
+        <otherwise>
+          <for-each-group select="node()" 
+              group-starting-with="osis:chapter[@sID]">
+            <choose>
+              <!-- remove introductions -->
+              <when test="position() = 1 and 
+                          name(current()) != 'chapter'"/>
+              <otherwise>
+                <element name="chapter" 
+                    namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">
+                  <attribute name="osisID" select="current()/@sID"/>
+                  <for-each-group select="current-group()[not(self::osis:chapter)]" 
+                      group-starting-with="osis:verse[@osisID]">
+                    <call-template name="verse"/>
+                  </for-each-group>
+                </element>
+              </otherwise>
+            </choose>
+          </for-each-group>
+        </otherwise>
+      </choose>
+    </copy>
+  </template>
   
-  <!-- Convert milestone verses into containers, and add dummy verses after multi-verse elements, as required by GoBible Creator -->
-  <xsl:template name="verses">
-    <xsl:choose>
-      <xsl:when test="position()=1 and name(current())!='verse'"/>
-      <xsl:otherwise>
-        <xsl:element name="verse" xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace">
-          <xsl:apply-templates select="current-group()[not(self::osis:verse)]" mode="pass2"/>
-        </xsl:element>
-        <xsl:for-each select="remove(tokenize(current()/@osisID,'\s+'),1)">
-          <xsl:element name="verse" xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace">.</xsl:element>
-        </xsl:for-each>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
+  <!-- Insure verses are container elements, and add dummy verses 
+  after multi-verse osisIDs, as required by GoBible Creator -->
+  <template name="verse">
+    <choose>
+      <when test="position() = 1 and name(current()) != 'verse'"/>
+      <otherwise>
+        <element name="verse" 
+            namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">
+          <apply-templates mode="pass2" select="current-group()"/>
+        </element>
+        <for-each select="remove(tokenize(current()/@osisID, '\s+'), 1)">
+          <element name="verse" 
+              namespace="http://www.bibletechnologies.net/2003/OSIS/namespace">.</element>
+        </for-each>
+      </otherwise>
+    </choose>
+  </template>
 
-</xsl:stylesheet>
+</stylesheet>
