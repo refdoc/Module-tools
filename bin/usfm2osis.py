@@ -499,7 +499,7 @@ def convertToOsis(sFile):
             periph += '">\n' + contents + '</div>\uFDE8\n'
             return periph
 
-        osis = re.sub(r'\\periph\s+([^'+'\n'+r']+)\s*'+'\n'+r'(.+?)(?=(\uFDD0|\\periph\b))', tagPeriph, osis, flags=re.DOTALL)
+        osis = re.sub(r'\\periph\s+([^'+'\n'+r']+)\s*'+'\n'+r'(.+?)(?=(\uFDD0|\\periph\b|\\ie))', tagPeriph, osis, flags=re.DOTALL)
 
         return osis
 
