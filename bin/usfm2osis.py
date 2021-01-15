@@ -58,8 +58,8 @@ scriptVersion = '0.6'
 # check Python2/3 compatibility
 
 ### Key to non-characters:
-# Used   : \uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8
-# Unused : \uFDE9\uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF
+# Used   : \uFDD0\uFDD1\uFDD2\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDDF\uFDE0\uFDE1\uFDE2\uFDE3\uFDE4\uFDE5\uFDE6\uFDE7\uFDE8\uFDE9
+# Unused : \uFDEA\uFDEB\uFDEC\uFDED\uFDEE\uFDEF
 # \uFDD0 book
 # \uFDD1 chapter
 # \uFDD2 verse
@@ -89,6 +89,8 @@ scriptVersion = '0.6'
 # \uFDE7 line-break
 #
 # \uFDE8 periph
+#
+# \uFDE9 fig
 
 import sys, codecs, re
 from encodings.aliases import aliases
@@ -811,23 +813,26 @@ def convertToOsis(sFile):
 
         # \qs_(Selah)\qs*
         osis = re.sub(r'\\qs\b\s(.+?)\\qs\*', r'<l type="selah">\1</l>', osis, flags=re.DOTALL)
+        
+        # Add \uFDE9 so both <l> and <lg> can end at \fig (OSIS does not allow figure elements within l or lg elements)
+        osis = re.sub(r'(\\fig)(?!\*)', '\uFDE9'+r'\1', osis, flags=re.DOTALL)
 
         # \q#(_text...)
-        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q[\drcm]?|qm\d|fig)\b|<(l|lb|title|list|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7\uFDE9'+r']|\\(q[\drcm]?|qm\d)\b|<(l|lb|title|list|/?div)\b))', r'<l level="1">\1</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\q(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7\uFDE9'+r']|\\(q[\drcm]?|qm\d)\b|<(l|lb|title|list|/?div)\b))', r'<l level="\1">\2</l>', osis, flags=re.DOTALL)
 
         # \qr_text...
         # \qc_text...
         # \qm#(_text...)
         qType = {'qr':'x-right', 'qc':'x-center', 'qm':'x-embedded" level="1', 'qm1':'x-embedded" level="1', 'qm2':'x-embedded" level="2', 'qm3':'x-embedded" level="3', 'qm4':'x-embedded" level="4', 'qm5':'x-embedded" level="5'}
-        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7'+r']|\\(q\d?|fig)\b|<(l|lb|title|list|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\(qr|qc|qm\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7\uFDE9'+r']|\\(q\d?)\b|<(l|lb|title|list|/?div)\b))', lambda m: '<l type="' + qType[m.group(1)] + '">' + m.group(2) + '</l>', osis, flags=re.DOTALL)
 
         osis = osis.replace('\n</l>', '</l>\n')
-        osis = re.sub('(<l [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
+        osis = re.sub('(<l [^\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDD5\uFDD6\uFDD7\uFDD8\uFDD9\uFDDA\uFDDB\uFDDC\uFDDD\uFDDE\uFDE7\uFDE9]+</l>)', r'<lg>\1</lg>', osis, flags=re.DOTALL)
 
         # x-to-next-level allows line folding like Paratext
         osis = re.sub('(<l level="(\d)")(>.*?</l>(\s*<l level="(\d)">)?)', lambda m: m.group(1)+' subType="x-to-next-level"'+m.group(3) if m.group(4) and int(m.group(2))+1 == int(m.group(5)) else m.group(1)+m.group(3), osis, flags=re.DOTALL)
-
+        
         return osis
 
 
