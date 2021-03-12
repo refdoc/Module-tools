@@ -632,6 +632,13 @@ def convertToOsis(sFile):
         osis = re.sub(r'(\uFDDC<div type="x-subSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\\mt(\d?))', r'\1'+'</div>\uFDDC\n', osis, flags=re.DOTALL)
         osis = re.sub(r'\\s4\s+(.+)', lambda m: '\uFDDD<div type="x-subSubSubSection">\uFDD4<title level="4">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDD<div type="x-subSubSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\uFDDD|\\mt(\d?))', r'\1'+'</div>\uFDDD\n', osis, flags=re.DOTALL)
+        # `\s5` should have section heading text => patch if text missing (PortugueseBibliaLivre)
+        # osis = re.sub(r'(?m)\\s[1-5]?$', '', osis)
+        # drop `\s5` without text following before `\c` (avoid empty `\p`)
+        osis = re.sub(r'\\s[1-5]?\n\\c', r'\\c', osis)
+        # replace other `\s5` without text following by `\p`
+        osis = re.sub(r'(?m)\\s[1-5]?$', r'\\p', osis)
+
         osis = re.sub(r'\\s5\s+(.+)', lambda m: '\uFDDE<div type="x-subSubSubSubSection">\uFDD4<title level="5">' + m.group(1) + '</title>', osis)
         osis = re.sub(r'(\uFDDE<div type="x-subSubSubSubSection">.*?)(?=\uFDD5|\uFDD0|\uFDE8|\uFDD6|\uFDD7|\uFDD8|\uFDD9|\uFDDA|\uFDDB|\uFDDC|\uFDDD|\uFDDE|\\mt(\d?))', r'\1'+'</div>\uFDDE\n', osis, flags=re.DOTALL)
 
