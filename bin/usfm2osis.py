@@ -402,28 +402,28 @@ def convertToOsis(sFile):
 
         # remapped 2.0 periphs
         # \pub
-        osis = re.sub(r'\\pub\b\s', '\\periph Publication Data\n', osis)
+        osis = re.sub(r'\\pub\b\s', r'\\periph Publication Data\n', osis)
         # \toc : \periph Table of Contents
-        osis = re.sub(r'\\toc\b\s', '\\periph Table of Contents\n', osis)
+        osis = re.sub(r'\\toc\b\s', r'\\periph Table of Contents\n', osis)
         # \pref
-        osis = re.sub(r'\\pref\b\s', '\\periph Preface\n', osis)
+        osis = re.sub(r'\\pref\b\s', r'\\periph Preface\n', osis)
         # \maps
-        osis = re.sub(r'\\maps\b\s', '\\periph Map Index\n', osis)
+        osis = re.sub(r'\\maps\b\s', r'\\periph Map Index\n', osis)
         # \cov
-        osis = re.sub(r'\\cov\b\s', '\\periph Cover\n', osis)
+        osis = re.sub(r'\\cov\b\s', r'\\periph Cover\n', osis)
         # \spine
-        osis = re.sub(r'\\spine\b\s', '\\periph Spine\n', osis)
+        osis = re.sub(r'\\spine\b\s', r'\\periph Spine\n', osis)
         # \pubinfo
-        osis = re.sub(r'\\pubinfo\b\s', '\\periph Publication Information\n', osis)
+        osis = re.sub(r'\\pubinfo\b\s', r'\\periph Publication Information\n', osis)
 
         # \intro
-        osis = re.sub(r'\\intro\b\s', '\\id INT\n', osis)
+        osis = re.sub(r'\\intro\b\s', r'\\id INT\n', osis)
         # \conc
-        osis = re.sub(r'\\conc\b\s', '\\id CNC\n', osis)
+        osis = re.sub(r'\\conc\b\s', r'\\id CNC\n', osis)
         # \glo
-        osis = re.sub(r'\\glo\b\s', '\\id GLO\n', osis)
+        osis = re.sub(r'\\glo\b\s', r'\\id GLO\n', osis)
         # \idx
-        osis = re.sub(r'\\idx\b\s', '\\id TDX\n', osis)
+        osis = re.sub(r'\\idx\b\s', r'\\id TDX\n', osis)
 
         return osis
 
@@ -1396,6 +1396,9 @@ def convertToOsis(sFile):
                 else:
                     print(('WARNING: Encoding "' + encoding + '" unknown, processing ' + sFile + ' as UTF-8'))
                     encoding = 'utf-8'
+            if encoding == 'utf-8':
+                print("Skipping encoding " + encoding + " from \\ide (1)\n")
+                encoding = ""
 
     if sys.version_info[0] < 3:
         osis = osis.lstrip(unichr(0xFEFF))
@@ -1465,6 +1468,9 @@ def readIdentifiersFromOsis(filename):
                 else:
                     #print(('WARNING: Encoding "' + encoding + '" unknown, processing ' + filename + ' as UTF-8'))
                     encoding = 'utf-8'
+            if encoding == 'utf-8':
+              print("Skipping encoding " + encoding + " from \\ide (2)\n")
+              encoding = ""
 
     # keep a copy of the OSIS book abbreviation for below (\toc3 processing) to store for mapping localized book names to/from OSIS
     osisBook = re.search(r'\\id\s+([A-Z0-9]+)', osis)
