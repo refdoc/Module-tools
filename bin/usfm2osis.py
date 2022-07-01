@@ -557,8 +557,8 @@ def convertToOsis(sFile):
         osis = osis.replace('\n</l>', '</l>\n')
         
         # \iq#_text...
-        osis = re.sub(r'\\iq\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iq\d?|fig|q\d?|b)\b|<title\b))', r'<l level="1" subType="x-introduction">\1</l>', osis, flags=re.DOTALL)
-        osis = re.sub(r'\\iq(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iq\d?|fig|q\d?|b)\b|<title\b))', r'<l level="\1" subType="x-introduction">\2</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\iq\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iq\d?|fig|q\d?|b)\b|<(lb|title|item|/?div)\b))', r'<l level="1" subType="x-introduction">\1</l>', osis, flags=re.DOTALL)
+        osis = re.sub(r'\\iq(\d)\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(iq\d?|fig|q\d?|b)\b|<(lb|title|item|/?div)\b))', r'<l level="\1" subType="x-introduction">\2</l>', osis, flags=re.DOTALL)
 
         # \ili#_text...
         osis = re.sub(r'\\ili\b\s*(.*?)(?=(['+'\uFDD0\uFDE8\uFDD1\uFDD3\uFDD4\uFDE7'+r']|\\(ili\d?|c|p|iot|io\d?|iex?)\b|<(lb|title|item|/?div)\b))', '<item type="x-indent-1" subType="x-introduction">\uFDE0'+r'\1'+'\uFDE0</item>', osis, flags=re.DOTALL)
