@@ -20,7 +20,7 @@
                                          [my:groups(.) = current-grouping-key()]"/>
               <if test="$myKey">
                 <element name="entryFree" namespace="http://www.crosswire.org/2013/TEIOSIS/namespace">
-                  <attribute name="n" select="$myKey"/>
+                  <attribute name="n" select="$myKey/normalize-space(string())"/>
                   <apply-templates select="current-group()"/>
                 </element>
                 <text>&#xa;</text>
